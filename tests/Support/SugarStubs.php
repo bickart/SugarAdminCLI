@@ -21,6 +21,8 @@ namespace {
     class RepairAndClear {
         public bool $show_output = true;
 
+        public bool $execute = false;
+
         /** @var list<string> */
         public array $module_list = [];
 
@@ -52,6 +54,26 @@ namespace {
             ++self::$clearAdditionalCachesCalls;
         }
 
+        public function clearVardefs(): void
+        {
+        }
+
+        /**
+         * @param array<mixed> $objects
+         * @param array<mixed> $skipExtensionsSections
+         */
+        public function rebuildExtensions(array $objects = [], array $skipExtensionsSections = []): void
+        {
+        }
+
+        public function clearExternalAPICache(): void
+        {
+        }
+
+        public function repairDatabase(): void
+        {
+        }
+
         public static function reset(): void
         {
             self::$repairAndClearAllCalls = [];
@@ -78,6 +100,29 @@ namespace {
         {
             self::$removeJSLanguageFilesCalls = 0;
             self::$clearLanguageCacheCalls = 0;
+        }
+    }
+
+    class Configurator {
+        /** @var array<string, mixed> */
+        public array $config = [];
+
+        public static int $handleOverrideCalls = 0;
+
+        public function __construct()
+        {
+            $this->config = $GLOBALS['sugar_config'] ?? [];
+        }
+
+        public function handleOverride(): void
+        {
+            $GLOBALS['sugar_config'] = $this->config;
+            ++self::$handleOverrideCalls;
+        }
+
+        public static function reset(): void
+        {
+            self::$handleOverrideCalls = 0;
         }
     }
 

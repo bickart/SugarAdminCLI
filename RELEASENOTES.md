@@ -38,3 +38,22 @@ before relying on them:
 - `admin:repair:activities`
 - `admin:repair:seed-users`
 - `admin:repair:cache:clear`
+
+Also added: 6 commands with no stock Sugar Repair-page equivalent, modeled
+on esimonetti/toothpaste (Apache-2.0) but reimplemented directly against
+Sugar's own APIs. `admin:maintenance:on`/`admin:maintenance:off` have real
+unit test coverage (`Configurator` is fully stubbed); the other 4 are
+**not yet live-verified**, and `admin:repair:prune-database` and
+`admin:repair:missing-tables` are the highest-risk commands in this package
+(the former performs real irreversible data deletion; the latter
+require()s every metadata/vardefs file directly and relies on an internal
+implementation detail of `PruneDatabaseService` for its `--table` option) —
+test both against a disposable, non-production instance before relying on
+them:
+
+- `admin:repair:restore-record`
+- `admin:repair:orphans-cleanup`
+- `admin:repair:prune-database`
+- `admin:repair:missing-tables`
+- `admin:maintenance:on`
+- `admin:maintenance:off`

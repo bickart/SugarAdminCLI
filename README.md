@@ -1,11 +1,12 @@
 # Amaiza | SugarAdminCLI
 
-Console commands for every action on SugarCRM's classic Administration "Repair" page (`index.php?module=Administration&action=Upgrade`) — Quick Repair and Rebuild, Rebuild Relationships, Repair Roles, Rebuild Schedulers, and the rest — runnable headlessly over `bin/sugarcrm`, without clicking through the admin UI.
+Console commands for every action on SugarCRM's classic Administration "Repair" page (`index.php?module=Administration&action=Upgrade`) — Quick Repair and Rebuild, Rebuild Relationships, Repair Roles, Rebuild Schedulers, and the rest — plus a handful of maintenance commands with no stock Sugar UI equivalent at all (restore a soft-deleted record, purge old soft-deleted data, custom-table orphan cleanup, maintenance mode toggle). Runnable headlessly over `bin/sugarcrm`, without clicking through the admin UI.
 
 ## Features
 
 - One `admin:repair:*` command per stock repair action (19 total), plus an `admin:qrr` alias for the most-used one (Quick Repair and Rebuild)
-- Every command drives Sugar's own core repair file/function directly (never reimplements Sugar's logic), so behavior stays in sync with core across versions
+- 6 additional `admin:repair:*`/`admin:maintenance:*` commands covering real maintenance gaps stock Sugar has no UI for at all
+- Every command drives Sugar's own core repair file/function/scheduled-job directly (never reimplements Sugar's logic), so behavior stays in sync with core across versions
 - Scriptable: chain repair steps in deploy pipelines, cron jobs, or CI without a browser session
 
 ## Requirements
@@ -20,7 +21,7 @@ Console commands for every action on SugarCRM's classic Administration "Repair" 
 
 | Path | Purpose |
 |---|---|
-| `crm/custom/src/amaiza/SugarAdminCLI/Console/Command/` | The 19 command classes |
+| `crm/custom/src/amaiza/SugarAdminCLI/Console/Command/` | The command classes |
 | `crm/custom/Extension/application/Ext/Console/` | Sugar Extension-framework registration of those commands |
 | `tests/` | PHPUnit suite against stubbed Sugar globals/classes (no live Sugar instance required) |
 | `bin/sugar-module-install.php` | Link or copy `crm/custom/` into a local Sugar instance for development |
@@ -56,6 +57,16 @@ Console commands for every action on SugarCRM's classic Administration "Repair" 
 | `admin:repair:activities` | Repairs Calls/Meetings end dates |
 | `admin:repair:seed-users` | Enables/disables demo seed users |
 | `admin:repair:cache:clear` | Clears additional (API/other) cached resources |
+
+Not stock Administration > Repair actions — no equivalent exists in Sugar core. Modeled on [esimonetti/toothpaste](https://github.com/esimonetti/toothpaste)'s commands (Apache-2.0), reimplemented directly against Sugar's own APIs rather than reusing that project's code:
+
+| Command | Does |
+|---|---|
+| `admin:repair:restore-record` | Restores a soft-deleted record and most of its relationships (`--module`, `--record`) |
+| `admin:repair:orphans-cleanup` | Deletes `_cstm` table rows with no matching core table row (permanent SQL delete, not soft) |
+| `admin:repair:prune-database` | Runs Sugar's own OOTB "Prune Database" scheduled job synchronously (hard-deletes old soft-deleted records + optimizes affected tables), optionally scoped to specific tables (`--table mytable,mytable_cstm`) |
+| `admin:repair:missing-tables` | Creates any SQL table missing entirely, for recovering an incomplete/partial-backup instance |
+| `admin:maintenance:on` / `admin:maintenance:off` | Toggles `maintenanceMode` — normally only settable by hand-editing `config_override.php` |
 
 See RELEASENOTES.md for what's implemented vs. pending live verification.
 
