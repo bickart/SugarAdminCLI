@@ -65,6 +65,8 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
 
         $processedTables = [];
         $total = 0;
+        $cstmTablesChecked = 0;
+        $auditTablesChecked = 0;
 
         foreach (array_keys($fullModuleList) as $module) {
             $bean = \BeanFactory::newBean($module);
@@ -76,6 +78,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
             $processedTables[$bean->table_name] = true;
 
             if (method_exists($bean, 'hasCustomFields') && $bean->hasCustomFields()) {
+                ++$cstmTablesChecked;
                 $total += $this->deleteOrphans(
                     $connection,
                     $bean->get_custom_table_name(),
@@ -89,6 +92,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
 
             $auditTable = $bean->get_audit_table_name();
             if ($db->tableExists($auditTable)) {
+                ++$auditTablesChecked;
                 $total += $this->deleteOrphans(
                     $connection,
                     $auditTable,
@@ -101,8 +105,15 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
             }
         }
 
-        $total += $this->cleanupAuditEvents($db, $connection, $output, $dryRun);
+        [$auditEventsDeleted, $auditEventsModulesChecked] = $this->cleanupAuditEvents($db, $connection, $output, $dryRun);
+        $total += $auditEventsDeleted;
 
+        $output->writeln(sprintf(
+            'Checked %d _cstm table(s), %d _audit table(s), and audit_events across %d module(s).',
+            $cstmTablesChecked,
+            $auditTablesChecked,
+            $auditEventsModulesChecked,
+        ));
         $output->writeln($dryRun
             ? sprintf('Total orphan rows that would be deleted: %d', $total)
             : sprintf('Total orphan rows deleted: %d', $total));
@@ -113,11 +124,13 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
      * per-module _audit tables above), so orphan detection has to be scoped
      * per distinct module_name value present in it — the join target table
      * (that module's core table) differs per group.
+     *
+     * @return array{0: int, 1: int} [rows deleted (or would-delete), distinct module_names checked]
      */
-    private function cleanupAuditEvents(\DBManager $db, Connection $connection, OutputInterface $output, bool $dryRun): int
+    private function cleanupAuditEvents(\DBManager $db, Connection $connection, OutputInterface $output, bool $dryRun): array
     {
         if (!$db->tableExists('audit_events')) {
-            return 0;
+            return [0, 0];
         }
 
         $moduleNames = $connection->createQueryBuilder()
@@ -127,6 +140,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
             ->fetchFirstColumn();
 
         $total = 0;
+        $checked = 0;
 
         foreach ($moduleNames as $moduleName) {
             $bean = \BeanFactory::newBean($moduleName);
@@ -135,6 +149,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
                 continue;
             }
 
+            ++$checked;
             $total += $this->deleteOrphans(
                 $connection,
                 'audit_events',
@@ -148,7 +163,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
             );
         }
 
-        return $total;
+        return [$total, $checked];
     }
 
     /**
