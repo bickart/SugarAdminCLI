@@ -57,3 +57,19 @@ them:
 - `admin:repair:missing-tables`
 - `admin:maintenance:on`
 - `admin:maintenance:off`
+
+`admin:repair:orphans-cleanup` and `admin:repair:prune-database` now
+require confirmation before running (`--yes`/`-y` to skip non-interactively,
+otherwise an interactive `[y/N]` prompt) since both perform permanent
+deletion with no backup — covered by dedicated unit tests
+(`ConfirmDestructiveActionTest`) against the shared
+`AbstractRepairCommand::confirmDestructiveAction()` mechanism.
+
+Also added `admin:repair:orphaned-parent-cleanup`: generalizes a
+customer-specific command (`dynatron:clean:tasks`, Tasks-only) into a
+configurable `--modules` list, defaulting to the 5 stock modules verified
+(directly against Sugar 26's vardefs) to actually have the
+`parent_type`/`parent_id` flex-relate field pair — Tasks, Calls, Meetings,
+Notes, Emails. Uses `mark_deleted()` (soft delete, reversible via
+`admin:repair:restore-record`), so no confirmation gate needed. **Not yet
+live-verified.**

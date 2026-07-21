@@ -67,8 +67,9 @@ Not stock Administration > Repair actions — no equivalent exists in Sugar core
 | `admin:repair:prune-database` | Runs Sugar's own OOTB "Prune Database" scheduled job synchronously (hard-deletes old soft-deleted records + optimizes affected tables), optionally scoped to specific tables (`--table mytable,mytable_cstm`) — requires confirmation, see below |
 | `admin:repair:missing-tables` | Creates any SQL table missing entirely, for recovering an incomplete/partial-backup instance |
 | `admin:maintenance:on` / `admin:maintenance:off` | Toggles `maintenanceMode` — normally only settable by hand-editing `config_override.php` |
+| `admin:repair:orphaned-parent-cleanup` | Soft-deletes records whose `parent_type`/`parent_id` flex-relate points at a record that no longer exists — defaults to Tasks, Calls, Meetings, Notes, Emails (the only stock modules with this field pair), override with `--modules` |
 
-`admin:repair:orphans-cleanup` and `admin:repair:prune-database` perform permanent, irreversible deletion with no backup, so both require confirmation before running: pass `--yes`/`-y` to proceed non-interactively (scripts/CI), otherwise you'll get an interactive `[y/N]` prompt. Running non-interactively without `--yes` fails with a clear error rather than silently doing nothing.
+`admin:repair:orphans-cleanup` and `admin:repair:prune-database` perform permanent, irreversible deletion with no backup, so both require confirmation before running: pass `--yes`/`-y` to proceed non-interactively (scripts/CI), otherwise you'll get an interactive `[y/N]` prompt. Running non-interactively without `--yes` fails with a clear error rather than silently doing nothing. `admin:repair:orphaned-parent-cleanup` doesn't need this — it uses `mark_deleted()` (soft delete, reversible via `admin:repair:restore-record`), not a permanent SQL delete.
 
 See RELEASENOTES.md for what's implemented vs. pending live verification.
 

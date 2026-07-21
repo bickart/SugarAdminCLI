@@ -4,6 +4,7 @@ use Sugarcrm\Sugarcrm\Console\CommandRegistry\CommandRegistry;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ClearAdditionalCacheCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\MaintenanceOffCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\MaintenanceOnCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\OrphanedParentCleanupCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\OrphansCleanupCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\PruneDatabaseCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\RebuildConfigCommand;
@@ -54,4 +55,5 @@ CommandRegistry::getInstance()->addCommands([
     new MaintenanceOffCommand(),
     new PruneDatabaseCommand(),
     new RepairMissingTablesCommand(),
+    new OrphanedParentCleanupCommand(),
 ]);
