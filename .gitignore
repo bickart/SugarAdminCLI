@@ -4,6 +4,7 @@
 /sugar.env.php
 /builds/
 **/*.ext.php
+!tests/fixtures/**/*.ext.php
 **/.DS_Store
 **/*orderMapping.php
 **/orderMapping.php
