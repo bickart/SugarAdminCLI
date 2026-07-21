@@ -41,6 +41,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Report counts without deleting anything, and skip the confirmation prompt')
             ->setDescription('Delete orphan rows from custom (_cstm), audit (_audit), and audit_events tables — rows with no matching core table record.');
         $this->addConfirmationOption();
+        $this->addBackupDirOption();
     }
 
     protected function repair(InputInterface $input, OutputInterface $output): void
@@ -55,6 +56,12 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
                 $output,
                 'This permanently deletes orphaned custom-table, audit-table, and audit_events rows with no backup.',
             );
+        }
+
+        $backupPath = $this->resolveBackupPath($input, $dryRun, 'orphans-cleanup');
+
+        if (null !== $backupPath) {
+            $output->writeln(sprintf('Backing up deleted rows to %s', $backupPath));
         }
 
         global $beanList, $app_list_strings;
@@ -87,6 +94,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
                     $bean->table_name,
                     $output,
                     $dryRun,
+                    $backupPath,
                 );
             }
 
@@ -101,11 +109,12 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
                     $bean->table_name,
                     $output,
                     $dryRun,
+                    $backupPath,
                 );
             }
         }
 
-        [$auditEventsDeleted, $auditEventsModulesChecked] = $this->cleanupAuditEvents($db, $connection, $output, $dryRun);
+        [$auditEventsDeleted, $auditEventsModulesChecked] = $this->cleanupAuditEvents($db, $connection, $output, $dryRun, $backupPath);
         $total += $auditEventsDeleted;
 
         $output->writeln(sprintf(
@@ -127,7 +136,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
      *
      * @return array{0: int, 1: int} [rows deleted (or would-delete), distinct module_names checked]
      */
-    private function cleanupAuditEvents(\DBManager $db, Connection $connection, OutputInterface $output, bool $dryRun): array
+    private function cleanupAuditEvents(\DBManager $db, Connection $connection, OutputInterface $output, bool $dryRun, ?string $backupPath): array
     {
         if (!$db->tableExists('audit_events')) {
             return [0, 0];
@@ -158,6 +167,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
                 $bean->table_name,
                 $output,
                 $dryRun,
+                $backupPath,
                 'module_name',
                 $moduleName,
             );
@@ -186,6 +196,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
         string $coreTable,
         OutputInterface $output,
         bool $dryRun,
+        ?string $backupPath,
         ?string $moduleNameColumn = null,
         ?string $moduleName = null,
     ): int {
@@ -229,6 +240,21 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
 
             if ([] === $orphanIds) {
                 break;
+            }
+
+            if (null !== $backupPath) {
+                $rowsBuilder = $connection->createQueryBuilder()
+                    ->select('src.*')
+                    ->from($sourceTable, 'src');
+                $rowsBuilder->where($rowsBuilder->expr()->in('src.'.$idColumn, $rowsBuilder->createPositionalParameter(
+                    $orphanIds,
+                    Connection::PARAM_STR_ARRAY,
+                )));
+                $rows = array_map(
+                    static fn (array $row): array => ['table' => $sourceTable] + $row,
+                    $rowsBuilder->executeQuery()->fetchAllAssociative(),
+                );
+                $this->appendBackupRows($backupPath, $rows);
             }
 
             $deleteBuilder = $connection->createQueryBuilder();

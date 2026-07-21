@@ -88,4 +88,122 @@ abstract class AbstractRepairCommand extends Command implements InstanceModeInte
             throw new \RuntimeException('Aborted — confirmation declined.');
         }
     }
+
+    /**
+     * A stronger gate than confirmDestructiveAction(): there is no --yes
+     * bypass at all, so this can only ever be satisfied by someone present
+     * at an interactive terminal. For actions risky or slow enough (e.g. a
+     * multi-table DDL rebuild that can run for a long time against
+     * production data) that skipping the prompt via automation should never
+     * be possible, not just discouraged.
+     */
+    protected function requireInteractiveConfirmation(InputInterface $input, OutputInterface $output, string $message): void
+    {
+        if (!$input->isInteractive()) {
+            throw new \RuntimeException(sprintf('%s This command must be run interactively — there is no --yes bypass.', $message));
+        }
+
+        $io = new SymfonyStyle($input, $output);
+
+        if (!$io->confirm($message.' Continue?', false)) {
+            throw new \RuntimeException('Aborted — confirmation declined.');
+        }
+    }
+
+    /**
+     * Like confirmDestructiveAction(), but for a sub-part of a larger run
+     * where declining should skip just that part rather than abort the
+     * whole command (e.g. one distinct group of records within a batch
+     * operation that need their own, more specific consent). --yes still
+     * skips the prompt outright; non-interactive without --yes still fails
+     * clearly rather than silently assuming yes or no.
+     */
+    protected function confirmOrSkip(InputInterface $input, OutputInterface $output, string $message): bool
+    {
+        if (true === $input->getOption('yes')) {
+            return true;
+        }
+
+        if (!$input->isInteractive()) {
+            throw new \RuntimeException(sprintf('%s Pass --yes (-y) to proceed non-interactively.', $message));
+        }
+
+        return new SymfonyStyle($input, $output)->confirm($message.' Continue?', false);
+    }
+
+    /**
+     * Registers --backup-dir for a command that can back up rows before
+     * deleting them. Call from configure().
+     */
+    protected function addBackupDirOption(): static
+    {
+        return $this->addOption(
+            'backup-dir',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Directory to write a JSON Lines backup of affected rows to before deleting (default: ./sugaradmincli-backups/, omit --backup-dir entirely to skip backing up)',
+        );
+    }
+
+    /**
+     * Builds a default backup file path under $backupDir, timestamped so
+     * repeated runs (and multiple tables/modules within one run) don't
+     * collide. JSON Lines (.jsonl), not a single JSON array, so a run that's
+     * interrupted partway still leaves every row written so far valid and
+     * readable, and multiple call sites can append to the same file over
+     * the course of one command run without re-reading it first.
+     */
+    protected function defaultBackupPath(string $backupDir, string $label): string
+    {
+        return sprintf('%s/%s-%s.jsonl', rtrim($backupDir, '/'), $label, date('Ymd_His'));
+    }
+
+    /**
+     * Resolves the effective backup path for a command run: null (skip
+     * backing up entirely) if --backup-dir wasn't passed or this is a
+     * dry-run (nothing will actually be deleted, so there's nothing to back
+     * up), otherwise a timestamped file path under the given directory.
+     */
+    protected function resolveBackupPath(InputInterface $input, bool $dryRun, string $label): ?string
+    {
+        if ($dryRun) {
+            return null;
+        }
+
+        $backupDir = $input->getOption('backup-dir');
+
+        if (null === $backupDir || '' === trim((string) $backupDir)) {
+            return null;
+        }
+
+        return $this->defaultBackupPath((string) $backupDir, $label);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     */
+    protected function appendBackupRows(string $path, array $rows): void
+    {
+        if ([] === $rows) {
+            return;
+        }
+
+        $dir = dirname($path);
+
+        if (!is_dir($dir) && !mkdir($dir, 0o775, true) && !is_dir($dir)) {
+            throw new \RuntimeException(sprintf('Unable to create backup directory: %s', $dir));
+        }
+
+        $handle = fopen($path, 'a');
+
+        if (false === $handle) {
+            throw new \RuntimeException(sprintf('Unable to open backup file: %s', $path));
+        }
+
+        foreach ($rows as $row) {
+            fwrite($handle, json_encode($row, \JSON_UNESCAPED_SLASHES)."\n");
+        }
+
+        fclose($handle);
+    }
 }

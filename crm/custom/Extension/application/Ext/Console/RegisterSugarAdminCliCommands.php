@@ -2,10 +2,12 @@
 
 use Sugarcrm\Sugarcrm\Console\CommandRegistry\CommandRegistry;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ClearAdditionalCacheCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ExportRecordsCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\MaintenanceOffCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\MaintenanceOnCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\OrphanedParentCleanupCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\OrphansCleanupCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\PruneBpmTablesCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\PruneDatabaseCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\RebuildConfigCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\RebuildHtaccessCommand;
@@ -24,6 +26,16 @@ use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\RepairInboundE
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\RepairMissingTablesCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\RepairRolesCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\RepairTeamsCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportBlockedRecordCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportDropdownUsageCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportDuplicatesCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportFieldUsageCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportLogicHooksCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportSchemaDiffCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportStaleBpmCasesCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportStaleJourneysCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportStuckJobsCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportTableSizesCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\RestoreRecordCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\SeedUsersCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\UpgradeTeamsCommand;
@@ -56,4 +68,16 @@ CommandRegistry::getInstance()->addCommands([
     new PruneDatabaseCommand(),
     new RepairMissingTablesCommand(),
     new OrphanedParentCleanupCommand(),
+    new ExportRecordsCommand(),
+    new ReportBlockedRecordCommand(),
+    new ReportStaleJourneysCommand(),
+    new PruneBpmTablesCommand(),
+    new ReportStaleBpmCasesCommand(),
+    new ReportDuplicatesCommand(),
+    new ReportLogicHooksCommand(),
+    new ReportFieldUsageCommand(),
+    new ReportDropdownUsageCommand(),
+    new ReportSchemaDiffCommand(),
+    new ReportTableSizesCommand(),
+    new ReportStuckJobsCommand(),
 ]);

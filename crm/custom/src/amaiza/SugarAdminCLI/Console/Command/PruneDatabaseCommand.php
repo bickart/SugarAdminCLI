@@ -60,6 +60,7 @@ class PruneDatabaseCommand extends AbstractRepairCommand {
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Report counts without deleting anything, and skip the confirmation prompt')
             ->setDescription('Runs the OOTB Prune Database job synchronously to completion, purging old soft-deleted records and optimizing affected tables.');
         $this->addConfirmationOption();
+        $this->addBackupDirOption();
     }
 
     protected function repair(InputInterface $input, OutputInterface $output): void
@@ -81,6 +82,13 @@ class PruneDatabaseCommand extends AbstractRepairCommand {
             $output,
             'This permanently deletes old soft-deleted records with no backup.',
         );
+
+        $backupPath = $this->resolveBackupPath($input, false, 'prune-database');
+
+        if (null !== $backupPath) {
+            $output->writeln(sprintf('Backing up rows to %s', $backupPath));
+            $this->backupRowsToPrune($tables, $backupPath, $output);
+        }
 
         $job = \BeanFactory::newBean('SchedulersJobs');
         $job->name = 'SugarAdminCLI: Prune Database'.(null !== $tables ? ' ('.implode(',', $tables).')' : '');
@@ -166,6 +174,56 @@ class PruneDatabaseCommand extends AbstractRepairCommand {
         }
 
         $output->writeln(sprintf('Total rows that would be deleted: %d', $total));
+    }
+
+    /**
+     * Reuses runDryRun()'s exact row-selection criteria (deleted=1 AND
+     * date_modified < threshold, on tables with both columns) but SELECTs
+     * full rows instead of COUNT(*), writing them to the backup file before
+     * the real pruneDatabase() job runs. A one-time snapshot taken up front
+     * rather than backing up each of pruneDatabase()'s own internal delete
+     * batches, since its batching is an internal implementation detail this
+     * command already treats as a black box.
+     *
+     * @param list<string>|null $tables
+     */
+    private function backupRowsToPrune(?array $tables, string $backupPath, OutputInterface $output): void
+    {
+        $db = \DBManagerFactory::getInstance();
+        $connection = $db->getConnection();
+        $tables ??= $db->getTablesArray();
+        $threshold = $this->calculateThresholdTime();
+
+        foreach ($tables as $table) {
+            if (!$db->tableExists($table)) {
+                continue;
+            }
+
+            $columns = $db->get_columns($table);
+            if (empty($columns['deleted']) || empty($columns['date_modified'])) {
+                continue;
+            }
+
+            $rows = $connection->createQueryBuilder()
+                ->select('*')
+                ->from($table)
+                ->where('deleted = :deleted')
+                ->andWhere('date_modified < :threshold')
+                ->setParameter('deleted', 1)
+                ->setParameter('threshold', $threshold)
+                ->executeQuery()
+                ->fetchAllAssociative();
+
+            if ([] === $rows) {
+                continue;
+            }
+
+            $this->appendBackupRows($backupPath, array_map(
+                static fn (array $row): array => ['table' => $table] + $row,
+                $rows,
+            ));
+            $output->writeln(sprintf('Backed up %d row(s) from %s', count($rows), $table));
+        }
     }
 
     private function calculateThresholdTime(): string
