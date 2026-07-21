@@ -1,0 +1,24 @@
+parameters:
+  level: 5
+  paths:
+    - crm/custom/src
+    - src
+  bootstrapFiles:
+    - tests/Support/SugarStubs.php
+  ignoreErrors:
+    # Every admin:repair:* command requires stock Sugar core files by
+    # relative path, and several call Sugar core classes (BeanFactory,
+    # DBManagerFactory) that only exist inside a real, bootstrapped Sugar
+    # instance -- not vendored here, and not fully faked in
+    # tests/Support/SugarStubs.php (RepairAndClear, LanguageManager, and
+    # SugarRelationshipFactory are stubbed there since those 3 have real
+    # test coverage; BeanFactory/DBManagerFactory don't yet). These are
+    # expected on every analysis run of this package, not bugs to fix.
+    - identifier: requireOnce.fileNotFound
+    - identifier: require.fileNotFound
+    -
+      identifier: class.notFound
+      message: '#\b(BeanFactory|DBManagerFactory|SugarMinifyUtils)\b#'
+    -
+      identifier: function.notFound
+      message: '#\bprocess_team_access\b#'

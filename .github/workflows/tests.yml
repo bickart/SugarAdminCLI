@@ -1,0 +1,33 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.4']
+    steps:
+      - uses: actions/checkout@v6
+      - uses: shivammathur/setup-php@2.37.1
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer test
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: shivammathur/setup-php@2.37.1
+        with:
+          php-version: '8.4'
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: ./vendor/bin/php-cs-fixer fix --dry-run --diff
+      - run: ./vendor/bin/phpstan analyse

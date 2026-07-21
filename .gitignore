@@ -1,0 +1,9 @@
+/vendor/
+/.php-cs-fixer.cache
+/.phpunit.cache
+/sugar.env.php
+/builds/
+**/*.ext.php
+**/.DS_Store
+**/*orderMapping.php
+**/orderMapping.php

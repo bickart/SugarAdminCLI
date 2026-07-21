@@ -1,0 +1,162 @@
+END USER LICENSE AGREEMENT
+
+This End User License Agreement ("Agreement") is a legal agreement between you ("Customer," "you," or "your") and Amaiza LLC ("Amaiza," "we," "our," or "us") governing your use of the software, plugins, extensions, integrations, documentation, and related services provided by Amaiza (collectively, the "Software").
+
+By downloading, installing, accessing, or using the Software, you agree to be bound by this Agreement. If you do not agree to these terms, do not install or use the Software.
+
+1. License Grant
+
+Subject to your compliance with this Agreement and payment of applicable fees, Amaiza grants you a limited, non-exclusive, non-transferable, revocable license to install and use the Software solely for your internal business purposes.
+
+This license permits you to:
+
+- Install and use the Software within the licensed environment, tenant, or number of authorized users purchased
+- Make a reasonable number of backup copies for archival and disaster recovery purposes
+- Use the Software in development, staging, or testing environments associated with your licensed production use
+
+All rights not expressly granted are reserved by Amaiza.
+
+2. Restrictions
+
+You may not, directly or indirectly:
+
+- Copy, reproduce, distribute, sublicense, lease, rent, sell, or resell the Software
+- Modify, adapt, translate, or create derivative works of the Software
+- Reverse engineer, decompile, disassemble, or otherwise attempt to derive source code except where prohibited by law
+- Remove or alter proprietary notices or branding
+- Use the Software to provide commercial hosting, timesharing, or service bureau services to third parties
+- Circumvent license controls or usage limitations
+- Use the Software in violation of applicable laws or regulations
+- Use the Software to develop a competing product or service
+- Publish benchmark or performance test results without prior written consent from Amaiza
+
+3. Ownership and Intellectual Property
+
+The Software is licensed, not sold. Amaiza and its licensors retain all right, title, and interest in and to the Software, including all intellectual property rights.
+
+No ownership rights are transferred to you under this Agreement.
+
+4. Marketplace and Third-Party Distribution
+
+If the Software is acquired through a marketplace, reseller, or distributor, your purchase may also be subject to the marketplace's terms and conditions.
+
+Amaiza is solely responsible for the Software itself, including support obligations expressly stated by Amaiza. Marketplace operators and resellers are not responsible for the Software unless explicitly stated otherwise.
+
+5. Support and Updates
+
+Unless separately agreed in writing:
+
+- Amaiza may provide updates, patches, bug fixes, or enhancements at its discretion
+- Amaiza is not obligated to provide ongoing maintenance or support
+- Updates may modify or remove functionality over time
+
+Compatibility with third-party platforms and APIs may require periodic Software updates, configuration changes, or customer action due to upstream platform modifications.
+
+You are responsible for maintaining compatible versions of any required third-party platforms or services.
+
+6. Third-Party Components
+
+The Software may include or depend upon third-party software, open source components, APIs, or services subject to separate license terms.
+
+Your use of those components is governed by their respective licenses where applicable.
+
+6A. Third-Party Platforms and API Dependencies
+
+The Software may depend upon, integrate with, or interact with third-party platforms, services, APIs, SDKs, authentication providers, or external systems.
+
+Customer acknowledges that:
+
+- Availability and functionality of the Software may depend on the continued availability and compatibility of such third-party platforms and APIs
+- Third-party providers may modify, restrict, suspend, deprecate, or discontinue APIs, authentication methods, features, endpoints, or integrations at any time without notice
+- Changes made by third-party providers may impact the functionality, performance, compatibility, or availability of portions of the Software
+- Amaiza is not responsible for downtime, interruptions, incompatibilities, data loss, or degraded functionality caused by third-party systems or services
+
+Amaiza will make commercially reasonable efforts to maintain compatibility with supported third-party systems but does not guarantee continued compatibility with all versions, releases, configurations, or API implementations of third-party products or services.
+
+Customer is solely responsible for maintaining all required third-party licenses, subscriptions, credentials, permissions, and access rights necessary to use the Software.
+
+7. Data Collection and Privacy
+
+Amaiza may collect limited technical and operational information related to installation, licensing, diagnostics, performance, and usage of the Software to:
+
+- Validate licensing
+- Improve product functionality
+- Provide support
+- Maintain security and reliability
+
+Amaiza does not intentionally collect customer business data or personal data unless explicitly required for functionality or support.
+
+Use of collected information is governed by Amaiza's Privacy Policy.
+
+8. AI and Automated Functionality
+
+If the Software includes AI-assisted, automated, or machine-generated functionality:
+
+- Outputs may contain inaccuracies or incomplete information
+- Customer is solely responsible for reviewing and validating outputs before reliance or use
+- Amaiza does not guarantee accuracy, completeness, or fitness of AI-generated results
+
+9. Limited Warranty
+
+For thirty (30) days following delivery, Amaiza warrants that the Software will substantially perform in accordance with its accompanying documentation under normal use.
+
+Your exclusive remedies are:
+
+- Repair or replacement of the Software, or
+- Refund of fees paid for the affected Software
+
+This warranty does not apply to issues caused by misuse, modification, unsupported environments, third-party systems, or unauthorized changes.
+
+10. Disclaimer of Warranties
+
+EXCEPT AS EXPRESSLY PROVIDED IN THIS AGREEMENT, THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE."
+
+AMAIZA DISCLAIMS ALL OTHER WARRANTIES, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+
+Amaiza does not warrant uninterrupted compatibility with third-party platforms, APIs, or services outside of its control.
+
+11. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW:
+
+- AMAIZA SHALL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES
+- AMAIZA SHALL NOT BE LIABLE FOR LOSS OF PROFITS, REVENUE, DATA, BUSINESS INTERRUPTION, OR GOODWILL
+- AMAIZA'S TOTAL LIABILITY ARISING OUT OF OR RELATED TO THE SOFTWARE SHALL NOT EXCEED THE AMOUNTS PAID BY YOU FOR THE SOFTWARE DURING THE TWELVE (12) MONTHS PRECEDING THE CLAIM
+
+These limitations apply regardless of the legal theory asserted.
+
+12. Indemnification
+
+You agree to defend, indemnify, and hold harmless Amaiza from claims, damages, liabilities, costs, and expenses arising from:
+
+- Your misuse of the Software
+- Your violation of this Agreement
+- Your violation of applicable laws or third-party rights
+
+13. Term and Termination
+
+This Agreement remains effective until terminated.
+
+Amaiza may terminate this Agreement immediately if you violate its terms.
+
+Upon termination, you must cease all use of the Software and destroy all copies in your possession or control.
+
+Sections intended to survive termination shall remain in effect.
+
+14. Export Compliance
+
+You agree to comply with all applicable export control and trade laws and regulations, including U.S. export regulations.
+
+You represent that you are not located in, under the control of, or a resident of any prohibited or sanctioned country.
+
+15. Governing Law
+
+This Agreement shall be governed by the laws of the State of California, without regard to conflict of law principles.
+
+Any disputes arising under this Agreement shall be resolved exclusively in the state or federal courts located in California.
+
+16. Entire Agreement
+
+This Agreement constitutes the complete and exclusive agreement between the parties regarding the Software and supersedes all prior or contemporaneous agreements and communications.
+
+If any provision is found unenforceable, the remaining provisions will remain in full force and effect.
