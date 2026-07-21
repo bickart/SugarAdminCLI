@@ -71,6 +71,11 @@ Not stock Administration > Repair actions — no equivalent exists in Sugar core
 
 `admin:repair:orphans-cleanup` and `admin:repair:prune-database` perform permanent, irreversible deletion with no backup, so both require confirmation before running: pass `--yes`/`-y` to proceed non-interactively (scripts/CI), otherwise you'll get an interactive `[y/N]` prompt. Running non-interactively without `--yes` fails with a clear error rather than silently doing nothing. `admin:repair:orphaned-parent-cleanup` doesn't need this — it uses `mark_deleted()` (soft delete, reversible via `admin:repair:restore-record`), not a permanent SQL delete.
 
+All three commands that delete data support `--dry-run`, which reports what would be deleted (per-table/module counts and a total) without deleting anything and without prompting for confirmation:
+- `admin:repair:orphans-cleanup --dry-run`
+- `admin:repair:prune-database --dry-run` (reimplements just the row-selection criteria as read-only counts — the underlying Sugar core job has no preview mode of its own)
+- `admin:repair:orphaned-parent-cleanup --dry-run`
+
 See RELEASENOTES.md for what's implemented vs. pending live verification.
 
 ## Unit tests

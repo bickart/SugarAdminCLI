@@ -1,6 +1,7 @@
 <?php
 namespace Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command;
 
+use SchedulersJob;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -56,22 +57,30 @@ class PruneDatabaseCommand extends AbstractRepairCommand {
                 InputOption::VALUE_REQUIRED,
                 'Comma-separated table names to prune (default: every table, matching the real scheduled job)',
             )
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Report counts without deleting anything, and skip the confirmation prompt')
             ->setDescription('Runs the OOTB Prune Database job synchronously to completion, purging old soft-deleted records and optimizing affected tables.');
         $this->addConfirmationOption();
     }
 
     protected function repair(InputInterface $input, OutputInterface $output): void
     {
+        $tableOption = (string) $input->getOption('table');
+        $tables = '' !== trim($tableOption)
+            ? array_values(array_filter(array_map('trim', explode(',', $tableOption))))
+            : null;
+
+        if ((bool) $input->getOption('dry-run')) {
+            $output->writeln('Dry run — reporting counts only, nothing will be deleted.');
+            $this->runDryRun($tables, $output);
+
+            return;
+        }
+
         $this->confirmDestructiveAction(
             $input,
             $output,
             'This permanently deletes old soft-deleted records with no backup.',
         );
-
-        $tableOption = (string) $input->getOption('table');
-        $tables = '' !== trim($tableOption)
-            ? array_values(array_filter(array_map('trim', explode(',', $tableOption))))
-            : null;
 
         $job = \BeanFactory::newBean('SchedulersJobs');
         $job->name = 'SugarAdminCLI: Prune Database'.(null !== $tables ? ' ('.implode(',', $tables).')' : '');
@@ -108,6 +117,69 @@ class PruneDatabaseCommand extends AbstractRepairCommand {
     }
 
     /**
+     * PruneDatabaseService has no preview mode of its own, so this
+     * reimplements just its row-selection criteria (deleted=1 AND
+     * date_modified < threshold, on tables with both columns) as read-only
+     * COUNT(*) queries — never touches PruneDatabaseService or creates a
+     * SchedulersJob at all.
+     *
+     * @param list<string>|null $tables
+     */
+    private function runDryRun(?array $tables, OutputInterface $output): void
+    {
+        $db = \DBManagerFactory::getInstance();
+        $connection = $db->getConnection();
+        $tables ??= $db->getTablesArray();
+        $threshold = $this->calculateThresholdTime();
+
+        $total = 0;
+
+        foreach ($tables as $table) {
+            if (!$db->tableExists($table)) {
+                $output->writeln(sprintf('Skipping %s: table does not exist.', $table));
+
+                continue;
+            }
+
+            $columns = $db->get_columns($table);
+            if (empty($columns['deleted']) || empty($columns['date_modified'])) {
+                $output->writeln(sprintf('Skipping %s: missing deleted/date_modified column.', $table));
+
+                continue;
+            }
+
+            $count = (int) $connection->createQueryBuilder()
+                ->select('COUNT(*) AS total')
+                ->from($table)
+                ->where('deleted = :deleted')
+                ->andWhere('date_modified < :threshold')
+                ->setParameter('deleted', 1)
+                ->setParameter('threshold', $threshold)
+                ->executeQuery()
+                ->fetchOne();
+
+            if ($count > 0) {
+                $output->writeln(sprintf('Would delete %d row(s) from %s (threshold: %s)', $count, $table, $threshold));
+            }
+
+            $total += $count;
+        }
+
+        $output->writeln(sprintf('Total rows that would be deleted: %d', $total));
+    }
+
+    private function calculateThresholdTime(): string
+    {
+        $config = \SugarConfig::getInstance();
+        $pruneDelayMs = (int) $config->get('prune_delay', self::DEFAULTS['prune_delay']);
+        $pruneDelaySeconds = max(0, (int) round($pruneDelayMs / 1000));
+
+        return new \DateTime()
+            ->sub(new \DateInterval('PT'.$pruneDelaySeconds.'S'))
+            ->format('Y-m-d H:i:s');
+    }
+
+    /**
      * Pre-seeds PruneDatabaseService's serialized resume state directly into
      * STATUS_PROCESS, so its own doInit() (which unconditionally scans every
      * table via $db->getTablesArray()) never runs — only our given tables get
@@ -125,10 +197,6 @@ class PruneDatabaseCommand extends AbstractRepairCommand {
         $pruneDelayMs = (int) $config->get('prune_delay', self::DEFAULTS['prune_delay']);
         $pruneDelaySeconds = max(0, (int) round($pruneDelayMs / 1000));
 
-        $thresholdTime = new \DateTime()
-            ->sub(new \DateInterval('PT'.$pruneDelaySeconds.'S'))
-            ->format('Y-m-d H:i:s');
-
         return [
             'status' => self::STATUS_PROCESS,
             'current_table_index' => 0,
@@ -137,7 +205,7 @@ class PruneDatabaseCommand extends AbstractRepairCommand {
             'failed_tables' => [],
             'failure_counts' => [],
             'last_failure_timestamps' => [],
-            'threshold_time' => $thresholdTime,
+            'threshold_time' => $this->calculateThresholdTime(),
             'batch_size' => (int) $config->get('prune_job_batch_size', self::DEFAULTS['prune_job_batch_size']),
             'prune_delay_seconds' => $pruneDelaySeconds,
             'max_duration' => (int) $config->get('prune_job.max_duration', self::DEFAULTS['prune_job.max_duration']),

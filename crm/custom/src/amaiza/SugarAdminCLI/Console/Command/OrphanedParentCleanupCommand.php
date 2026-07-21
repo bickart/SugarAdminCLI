@@ -45,6 +45,7 @@ class OrphanedParentCleanupCommand extends AbstractRepairCommand {
                 InputOption::VALUE_REQUIRED,
                 sprintf('Comma-separated modules to check (default: %s)', implode(',', self::DEFAULT_MODULES)),
             )
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Report counts without soft-deleting anything')
             ->setDescription('Soft-delete records (Tasks, Calls, Meetings, Notes, Emails by default) whose parent record no longer exists.');
     }
 
@@ -54,13 +55,18 @@ class OrphanedParentCleanupCommand extends AbstractRepairCommand {
         $modules = '' !== trim($modulesOption)
             ? array_values(array_filter(array_map('trim', explode(',', $modulesOption))))
             : self::DEFAULT_MODULES;
+        $dryRun = (bool) $input->getOption('dry-run');
+
+        if ($dryRun) {
+            $output->writeln('Dry run — reporting counts only, nothing will be soft-deleted.');
+        }
 
         foreach ($modules as $module) {
-            $this->cleanupModule($module, $output);
+            $this->cleanupModule($module, $output, $dryRun);
         }
     }
 
-    private function cleanupModule(string $module, OutputInterface $output): void
+    private function cleanupModule(string $module, OutputInterface $output, bool $dryRun): void
     {
         $probe = \BeanFactory::newBean($module);
 
@@ -77,16 +83,21 @@ class OrphanedParentCleanupCommand extends AbstractRepairCommand {
         $query->orderBy('parent_type');
 
         $bean = \BeanFactory::newBean($module);
-        $deleted = 0;
+        $count = 0;
 
         foreach ($query->execute() as $row) {
             if (!$this->parentExists($row['parent_type'] ?? null, $row['parent_id'] ?? null)) {
-                $bean->mark_deleted($row['id']);
-                ++$deleted;
+                if (!$dryRun) {
+                    $bean->mark_deleted($row['id']);
+                }
+
+                ++$count;
             }
         }
 
-        $output->writeln(sprintf('%s: soft-deleted %d orphaned record(s).', $module, $deleted));
+        $output->writeln($dryRun
+            ? sprintf('%s: would soft-delete %d orphaned record(s).', $module, $count)
+            : sprintf('%s: soft-deleted %d orphaned record(s).', $module, $count));
     }
 
     private function parentExists(?string $parentType, ?string $parentId): bool

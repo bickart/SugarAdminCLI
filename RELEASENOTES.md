@@ -81,3 +81,14 @@ the same way Sugar's own core code guards these tables) and the shared
 `module_name` since one table covers every module) — previously it only
 handled `_cstm` tables. Both field mappings verified directly against
 `metadata/audit_templateMetaData.php` and `metadata/audit_eventsMetaData.php`.
+
+All three commands that delete data now support `--dry-run` (reports
+per-table/module counts and a total without deleting anything, and skips
+the confirmation prompt entirely since nothing destructive happens):
+`admin:repair:orphans-cleanup`, `admin:repair:prune-database`, and
+`admin:repair:orphaned-parent-cleanup`. For prune-database, dry-run
+reimplements just the row-selection criteria (`deleted=1 AND
+date_modified < threshold`, on tables with both columns) as read-only
+COUNT(*) queries, since the underlying `PruneDatabaseService` has no
+preview mode of its own and dry-run never touches it or creates a
+SchedulersJob.

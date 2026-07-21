@@ -4,6 +4,7 @@ namespace Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command;
 use Doctrine\DBAL\Connection;
 use SugarBean;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -37,17 +38,24 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
     {
         $this
             ->setName('admin:repair:orphans-cleanup')
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Report counts without deleting anything, and skip the confirmation prompt')
             ->setDescription('Delete orphan rows from custom (_cstm), audit (_audit), and audit_events tables — rows with no matching core table record.');
         $this->addConfirmationOption();
     }
 
     protected function repair(InputInterface $input, OutputInterface $output): void
     {
-        $this->confirmDestructiveAction(
-            $input,
-            $output,
-            'This permanently deletes orphaned custom-table, audit-table, and audit_events rows with no backup.',
-        );
+        $dryRun = (bool) $input->getOption('dry-run');
+
+        if ($dryRun) {
+            $output->writeln('Dry run — reporting orphan counts only, nothing will be deleted.');
+        } else {
+            $this->confirmDestructiveAction(
+                $input,
+                $output,
+                'This permanently deletes orphaned custom-table, audit-table, and audit_events rows with no backup.',
+            );
+        }
 
         global $beanList, $app_list_strings;
 
@@ -56,7 +64,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
         $fullModuleList = array_merge($beanList, $app_list_strings['moduleList'] ?? []);
 
         $processedTables = [];
-        $totalDeleted = 0;
+        $total = 0;
 
         foreach (array_keys($fullModuleList) as $module) {
             $bean = \BeanFactory::newBean($module);
@@ -68,32 +76,36 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
             $processedTables[$bean->table_name] = true;
 
             if (method_exists($bean, 'hasCustomFields') && $bean->hasCustomFields()) {
-                $totalDeleted += $this->deleteOrphans(
+                $total += $this->deleteOrphans(
                     $connection,
                     $bean->get_custom_table_name(),
                     'id_c',
                     'id_c',
                     $bean->table_name,
                     $output,
+                    $dryRun,
                 );
             }
 
             $auditTable = $bean->get_audit_table_name();
             if ($db->tableExists($auditTable)) {
-                $totalDeleted += $this->deleteOrphans(
+                $total += $this->deleteOrphans(
                     $connection,
                     $auditTable,
                     'id',
                     'parent_id',
                     $bean->table_name,
                     $output,
+                    $dryRun,
                 );
             }
         }
 
-        $totalDeleted += $this->cleanupAuditEvents($db, $connection, $output);
+        $total += $this->cleanupAuditEvents($db, $connection, $output, $dryRun);
 
-        $output->writeln(sprintf('Total orphan rows deleted: %d', $totalDeleted));
+        $output->writeln($dryRun
+            ? sprintf('Total orphan rows that would be deleted: %d', $total)
+            : sprintf('Total orphan rows deleted: %d', $total));
     }
 
     /**
@@ -102,7 +114,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
      * per distinct module_name value present in it — the join target table
      * (that module's core table) differs per group.
      */
-    private function cleanupAuditEvents(\DBManager $db, Connection $connection, OutputInterface $output): int
+    private function cleanupAuditEvents(\DBManager $db, Connection $connection, OutputInterface $output, bool $dryRun): int
     {
         if (!$db->tableExists('audit_events')) {
             return 0;
@@ -114,7 +126,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
             ->executeQuery()
             ->fetchFirstColumn();
 
-        $deletedTotal = 0;
+        $total = 0;
 
         foreach ($moduleNames as $moduleName) {
             $bean = \BeanFactory::newBean($moduleName);
@@ -123,19 +135,20 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
                 continue;
             }
 
-            $deletedTotal += $this->deleteOrphans(
+            $total += $this->deleteOrphans(
                 $connection,
                 'audit_events',
                 'id',
                 'parent_id',
                 $bean->table_name,
                 $output,
+                $dryRun,
                 'module_name',
                 $moduleName,
             );
         }
 
-        return $deletedTotal;
+        return $total;
     }
 
     /**
@@ -144,6 +157,11 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
      * BATCH_SIZE actual rows per delete regardless of how many source rows
      * might share the same $joinColumn value (e.g. many audit rows per
      * parent_id), to keep each delete statement's lock duration bounded.
+     *
+     * In dry-run mode this runs a single COUNT(*) instead of the batch
+     * delete loop — reusing the loop with the DELETE skipped would just
+     * return the same LIMIT-ed batch forever, since nothing ever shrinks
+     * the result set.
      */
     private function deleteOrphans(
         Connection $connection,
@@ -152,9 +170,31 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
         string $joinColumn,
         string $coreTable,
         OutputInterface $output,
+        bool $dryRun,
         ?string $moduleNameColumn = null,
         ?string $moduleName = null,
     ): int {
+        if ($dryRun) {
+            $countBuilder = $connection->createQueryBuilder()
+                ->select('COUNT(*) AS total')
+                ->from($sourceTable, 'src')
+                ->leftJoin('src', $coreTable, 'core', sprintf('src.%s = core.id', $joinColumn))
+                ->where('core.id IS NULL');
+
+            if (null !== $moduleNameColumn) {
+                $countBuilder->andWhere(sprintf('src.%s = :moduleName', $moduleNameColumn))
+                    ->setParameter('moduleName', $moduleName);
+            }
+
+            $count = (int) $countBuilder->executeQuery()->fetchOne();
+
+            if ($count > 0) {
+                $output->writeln(sprintf('Would delete %d orphan row(s) from %s', $count, $sourceTable));
+            }
+
+            return $count;
+        }
+
         $deletedTotal = 0;
 
         while (true) {
