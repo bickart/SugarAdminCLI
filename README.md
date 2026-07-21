@@ -63,7 +63,7 @@ Not stock Administration > Repair actions — no equivalent exists in Sugar core
 | Command | Does |
 |---|---|
 | `admin:repair:restore-record` | Restores a soft-deleted record and most of its relationships (`--module`, `--record`) |
-| `admin:repair:orphans-cleanup` | Deletes `_cstm` table rows with no matching core table row (permanent SQL delete, not soft) — requires confirmation, see below |
+| `admin:repair:orphans-cleanup` | Deletes orphan rows from `_cstm`, `_audit`, and `audit_events` tables — no matching core table row (permanent SQL delete, not soft) — requires confirmation, see below |
 | `admin:repair:prune-database` | Runs Sugar's own OOTB "Prune Database" scheduled job synchronously (hard-deletes old soft-deleted records + optimizes affected tables), optionally scoped to specific tables (`--table mytable,mytable_cstm`) — requires confirmation, see below |
 | `admin:repair:missing-tables` | Creates any SQL table missing entirely, for recovering an incomplete/partial-backup instance |
 | `admin:maintenance:on` / `admin:maintenance:off` | Toggles `maintenanceMode` — normally only settable by hand-editing `config_override.php` |

@@ -73,3 +73,11 @@ configurable `--modules` list, defaulting to the 5 stock modules verified
 Notes, Emails. Uses `mark_deleted()` (soft delete, reversible via
 `admin:repair:restore-record`), so no confirmation gate needed. **Not yet
 live-verified.**
+
+`admin:repair:orphans-cleanup` now also cleans up per-module `_audit`
+tables (`parent_id -> core.id`, existence checked via `$db->tableExists()`
+the same way Sugar's own core code guards these tables) and the shared
+`audit_events` table (`parent_id -> core.id`, additionally scoped by
+`module_name` since one table covers every module) — previously it only
+handled `_cstm` tables. Both field mappings verified directly against
+`metadata/audit_templateMetaData.php` and `metadata/audit_eventsMetaData.php`.
