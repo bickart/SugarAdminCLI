@@ -1,5 +1,7 @@
 # Amaiza | SugarAdminCLI
 
+[![Tests](https://github.com/bickart/SugarAdminCLI/actions/workflows/tests.yml/badge.svg)](https://github.com/bickart/SugarAdminCLI/actions/workflows/tests.yml)
+
 Console commands for every action on SugarCRM's classic Administration "Repair" page (`index.php?module=Administration&action=Upgrade`) — Quick Repair and Rebuild, Rebuild Relationships, Repair Roles, Rebuild Schedulers, and the rest — plus a growing set of maintenance and diagnostic commands with no stock Sugar UI equivalent at all (restore a soft-deleted record, purge old soft-deleted data, custom-table orphan cleanup, maintenance mode toggle, duplicate/logic-hook/schema audits, and more). Runnable headlessly over `bin/sugarcrm`, without clicking through the admin UI.
 
 ## Features
