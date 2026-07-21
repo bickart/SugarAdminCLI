@@ -15,6 +15,19 @@ use Symfony\Component\Console\Output\OutputInterface;
  * that project's code. One-to-many relationships stored as a plain foreign
  * key on the related bean (no join table) can't be restored this way —
  * those need an actual backup, same limitation toothpaste documents.
+ *
+ * For join-table (many-to-many) relationships, restoring "related records
+ * that are themselves soft-deleted while the link to them is still active"
+ * requires a direct join-table query — Link2::getBeans(['deleted' => 1])
+ * does NOT do this: for M2M relationships it filters on the JOIN ROW's own
+ * deleted flag (i.e. whether the *link itself* was removed) via
+ * 'add_deleted' => false internally, not on the related bean's deleted
+ * column at all (confirmed against data/Relationships/M2MRelationship.php
+ * and include/SugarQuery/SugarQuery.php's add_deleted handling). Using it
+ * the naive way silently restores nothing in the common case (parent
+ * deleted, links never touched) and can wrongly re-link a deliberately
+ * removed relationship in the uncommon case (a link was intentionally
+ * unlinked via the UI, which soft-deletes the join row).
  */
 class RestoreRecordCommand extends AbstractRepairCommand {
     protected function configure(): void
@@ -55,30 +68,24 @@ class RestoreRecordCommand extends AbstractRepairCommand {
                 continue;
             }
 
-            $relatedBeans = $mainBean->$linkField->getBeans(['deleted' => 1]);
+            $link = $mainBean->$linkField;
+            $relationship = $link->getRelationshipObject();
+            $def = $relationship->def;
 
-            if ([] !== $relatedBeans) {
-                foreach ($relatedBeans as $relatedBean) {
-                    if ($relatedBean->deleted) {
-                        $relatedBean->mark_undeleted($relatedBean->id);
-                        $output->writeln(sprintf('Restored related record: %s "%s".', $relatedBean->getModuleName(), $relatedBean->id));
-                    }
-
-                    $mainBean->$linkField->add($relatedBean->id);
+            if (empty($def['join_table'])) {
+                if (!empty($def['rhs_key'])) {
+                    $skipped[] = sprintf(
+                        'Module "%s" through link field "%s" (stored on field "%s")',
+                        $def['rhs_module'],
+                        $linkField,
+                        $def['rhs_key'],
+                    );
                 }
 
                 continue;
             }
 
-            $relationship = $mainBean->$linkField->getRelationshipObject();
-            if (empty($relationship->def['join_table']) && !empty($relationship->def['rhs_key'])) {
-                $skipped[] = sprintf(
-                    'Module "%s" through link field "%s" (stored on field "%s")',
-                    $relationship->def['rhs_module'],
-                    $linkField,
-                    $relationship->def['rhs_key'],
-                );
-            }
+            $this->restoreSoftDeletedRelatedBeans($mainBean, $link, $def, $output);
         }
 
         if ([] !== $skipped) {
@@ -86,6 +93,51 @@ class RestoreRecordCommand extends AbstractRepairCommand {
             foreach ($skipped as $message) {
                 $output->writeln('  - '.$message);
             }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $def
+     */
+    private function restoreSoftDeletedRelatedBeans(\SugarBean $mainBean, \Link2 $link, array $def, OutputInterface $output): void
+    {
+        $relatedModule = $link->getRelatedModuleName();
+
+        if (false === $relatedModule) {
+            return;
+        }
+
+        $relatedProbe = \BeanFactory::newBean($relatedModule);
+
+        if (!$relatedProbe instanceof \SugarBean) {
+            return;
+        }
+
+        $onLhs = \REL_LHS === $link->getSide();
+        $myKey = $onLhs ? $def['join_key_lhs'] : $def['join_key_rhs'];
+        $targetKey = $onLhs ? $def['join_key_rhs'] : $def['join_key_lhs'];
+
+        $connection = \DBManagerFactory::getInstance()->getConnection();
+        $relatedIds = $connection->createQueryBuilder()
+            ->select('jt.'.$targetKey)
+            ->from($def['join_table'], 'jt')
+            ->innerJoin('jt', $relatedProbe->table_name, 'rt', sprintf('jt.%s = rt.id', $targetKey))
+            ->where(sprintf('jt.%s = :mainId', $myKey))
+            ->andWhere('jt.deleted = 0')
+            ->andWhere('rt.deleted = 1')
+            ->setParameter('mainId', $mainBean->id)
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        foreach ($relatedIds as $id) {
+            $relatedBean = \BeanFactory::retrieveBean($relatedModule, $id, ['deleted' => 0]);
+
+            if (null === $relatedBean || empty($relatedBean->id)) {
+                continue;
+            }
+
+            $relatedBean->mark_undeleted($relatedBean->id);
+            $output->writeln(sprintf('Restored related record: %s "%s".', $relatedModule, $relatedBean->id));
         }
     }
 }

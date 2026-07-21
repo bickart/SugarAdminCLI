@@ -18,7 +18,10 @@ parameters:
     - identifier: require.fileNotFound
     -
       identifier: class.notFound
-      message: '#\b(BeanFactory|DBManagerFactory|SugarMinifyUtils|SugarBean|SchedulersJob|SugarConfig|DBManager|Doctrine\\DBAL\\Connection|SugarQuery)\b#'
+      message: '#\b(BeanFactory|DBManagerFactory|SugarMinifyUtils|SugarBean|SchedulersJob|SugarConfig|DBManager|Doctrine\\DBAL\\Connection|SugarQuery|Link2)\b#'
     -
       identifier: function.notFound
       message: '#\b(process_team_access|pruneDatabase)\b#'
+    -
+      identifier: constant.notFound
+      message: '#\bREL_LHS\b#'
