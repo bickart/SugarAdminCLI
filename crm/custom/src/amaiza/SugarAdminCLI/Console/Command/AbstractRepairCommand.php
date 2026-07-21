@@ -4,6 +4,7 @@ namespace Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command;
 use Sugarcrm\Sugarcrm\Console\CommandRegistry\Mode\InstanceModeInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -48,4 +49,43 @@ abstract class AbstractRepairCommand extends Command implements InstanceModeInte
      * exposes) directly — never reimplement Sugar's own repair logic.
      */
     abstract protected function repair(InputInterface $input, OutputInterface $output): void;
+
+    /**
+     * Registers the --yes/-y flag a destructive command needs alongside
+     * confirmDestructiveAction(). Call from configure().
+     */
+    protected function addConfirmationOption(): static
+    {
+        return $this->addOption(
+            'yes',
+            'y',
+            InputOption::VALUE_NONE,
+            'Skip the confirmation prompt (required for non-interactive/CI use, since this command modifies data irreversibly)',
+        );
+    }
+
+    /**
+     * Gates an irreversible action behind explicit confirmation: --yes/-y
+     * skips the prompt outright (for scripts/CI); otherwise, in an
+     * interactive terminal, asks and proceeds only on an explicit yes;
+     * otherwise (non-interactive, no --yes) fails clearly rather than
+     * silently defaulting to "no". Requires addConfirmationOption() to have
+     * been called in configure().
+     */
+    protected function confirmDestructiveAction(InputInterface $input, OutputInterface $output, string $message): void
+    {
+        if (true === $input->getOption('yes')) {
+            return;
+        }
+
+        if (!$input->isInteractive()) {
+            throw new \RuntimeException(sprintf('%s Pass --yes (-y) to proceed non-interactively.', $message));
+        }
+
+        $io = new SymfonyStyle($input, $output);
+
+        if (!$io->confirm($message.' Continue?', false)) {
+            throw new \RuntimeException('Aborted — confirmation declined.');
+        }
+    }
 }

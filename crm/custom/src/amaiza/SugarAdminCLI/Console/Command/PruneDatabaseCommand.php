@@ -57,10 +57,17 @@ class PruneDatabaseCommand extends AbstractRepairCommand {
                 'Comma-separated table names to prune (default: every table, matching the real scheduled job)',
             )
             ->setDescription('Runs the OOTB Prune Database job synchronously to completion, purging old soft-deleted records and optimizing affected tables.');
+        $this->addConfirmationOption();
     }
 
     protected function repair(InputInterface $input, OutputInterface $output): void
     {
+        $this->confirmDestructiveAction(
+            $input,
+            $output,
+            'This permanently deletes old soft-deleted records with no backup.',
+        );
+
         $tableOption = (string) $input->getOption('table');
         $tables = '' !== trim($tableOption)
             ? array_values(array_filter(array_map('trim', explode(',', $tableOption))))

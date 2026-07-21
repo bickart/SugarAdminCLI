@@ -24,10 +24,17 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
         $this
             ->setName('admin:repair:orphans-cleanup')
             ->setDescription('Delete orphan rows from all custom (_cstm) tables — rows with no matching core table record.');
+        $this->addConfirmationOption();
     }
 
     protected function repair(InputInterface $input, OutputInterface $output): void
     {
+        $this->confirmDestructiveAction(
+            $input,
+            $output,
+            'This permanently deletes orphaned custom-table rows with no backup.',
+        );
+
         global $beanList, $app_list_strings;
 
         $db = \DBManagerFactory::getInstance();
