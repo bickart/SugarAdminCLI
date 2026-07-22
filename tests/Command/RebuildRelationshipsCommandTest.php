@@ -20,7 +20,7 @@ final class RebuildRelationshipsCommandTest extends TestCase {
         $application = new Application();
         $application->add(new RebuildRelationshipsCommand());
 
-        $tester = new CommandTester($application->find('admin:repair:relationships'));
+        $tester = new CommandTester($application->find('amaiza:admin:repair:relationships'));
         $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);

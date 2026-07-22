@@ -19,7 +19,7 @@ class RepairActivitiesCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:activities')
+            ->setName('amaiza:admin:repair:activities')
             ->setDescription('Repair Activities — repairs Activities (Calls, Meetings) end dates.');
     }
 

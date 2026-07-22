@@ -38,7 +38,7 @@ class ReportDuplicatesCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:duplicates')
+            ->setName('amaiza:admin:report:duplicates')
             ->addOption('module', null, InputOption::VALUE_REQUIRED, 'Module to scan for duplicates (only modules with duplicate_check enabled — Accounts/Leads/Contacts out of the box)')
             ->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Number of records to scan (default: 500)', '500')
             ->addOption('offset', null, InputOption::VALUE_REQUIRED, 'Offset into the module\'s records to start scanning from (default: 0)', '0')

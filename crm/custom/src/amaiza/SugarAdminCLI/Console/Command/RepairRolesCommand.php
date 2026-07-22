@@ -17,7 +17,7 @@ class RepairRolesCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:roles')
+            ->setName('amaiza:admin:repair:roles')
             ->setDescription('Repair Roles — adds all new modules that support Access Controls, and any new Access Controls to existing modules.');
     }
 

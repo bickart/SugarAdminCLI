@@ -4,7 +4,7 @@ This file provides guidance to AI coding assistants (Claude Code, Codex, or othe
 
 ## What this is
 
-SugarAdminCLI is a suite of Symfony Console commands (`admin:repair:*`) that expose every action from SugarCRM's classic Administration "Repair" page (Quick Repair and Rebuild, Rebuild Relationships, Repair Roles, etc.) as a headless CLI command, so they can be scripted, run in CI/deploy pipelines, or run over SSH without a browser.
+SugarAdminCLI is a suite of Symfony Console commands (`amaiza:admin:repair:*`) that expose every action from SugarCRM's classic Administration "Repair" page (Quick Repair and Rebuild, Rebuild Relationships, Repair Roles, etc.) as a headless CLI command, so they can be scripted, run in CI/deploy pipelines, or run over SSH without a browser.
 
 It is not a Sugar bean/UI module — there is no `crm/modules/<Name>` payload, no Module Loader package, no admin panel. The entire product is `crm/custom/src/amaiza/SugarAdminCLI/Console/Command/*.php` (the command classes, in a product-scoped namespace directory to avoid colliding with other custom or Amaiza-product commands sharing the same Sugar instance) plus `crm/custom/Extension/application/Ext/Console/RegisterSugarAdminCliCommands.php` (Sugar's Extension-framework registration of those commands), meant to be copied or symlinked into any Sugar instance's `custom/` tree.
 
@@ -27,7 +27,7 @@ A few actions (Rebuild Sprites, Rebuild JS Groupings, Remove XSS) have a top-lev
 ## Testing changes
 
 - `composer test` runs the PHPUnit suite against `tests/Support/SugarStubs.php` (lightweight fakes for the Sugar globals/classes the command classes reference) — this verifies each command pre-seeds the correct request/global state and calls the right stub, without needing a live Sugar instance.
-- Stub coverage is not a substitute for the real thing: before considering any command done, run it for real via `php bin/sugarcrm admin:repair:<x>` against a real (non-production) Sugar instance and confirm the actual side effect (cache file rebuilt, ACL actions added, sprite images regenerated, etc.) — see README.md's development setup for linking this repo into a local Sugar instance.
+- Stub coverage is not a substitute for the real thing: before considering any command done, run it for real via `php bin/sugarcrm amaiza:admin:repair:<x>` against a real (non-production) Sugar instance and confirm the actual side effect (cache file rebuilt, ACL actions added, sprite images regenerated, etc.) — see README.md's development setup for linking this repo into a local Sugar instance.
 - `./vendor/bin/php-cs-fixer fix --dry-run --diff` and `./vendor/bin/phpstan analyse` should be clean before considering a change finished.
 
 ## Code style

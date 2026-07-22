@@ -21,7 +21,7 @@ class RebuildSugarLogicCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:sugarlogic')
+            ->setName('amaiza:admin:repair:sugarlogic')
             ->setDescription('Rebuild Sugar Logic Functions — rebuilds the Sugar Logic functions cache.');
     }
 

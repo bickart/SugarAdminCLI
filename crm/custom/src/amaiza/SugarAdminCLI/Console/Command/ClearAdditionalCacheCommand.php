@@ -19,7 +19,7 @@ class ClearAdditionalCacheCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:cache:clear')
+            ->setName('amaiza:admin:repair:cache:clear')
             ->setDescription('Clear Additional Cache — removes cached files used by additional resources (API, etc).');
     }
 

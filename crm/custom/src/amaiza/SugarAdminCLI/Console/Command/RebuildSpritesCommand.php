@@ -16,7 +16,7 @@ class RebuildSpritesCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:sprites')
+            ->setName('amaiza:admin:repair:sprites')
             ->setDescription('Rebuild Sprites — rebuilds the sprite images and configuration files.');
     }
 

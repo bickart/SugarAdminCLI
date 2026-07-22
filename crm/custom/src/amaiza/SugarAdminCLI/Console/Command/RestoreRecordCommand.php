@@ -33,7 +33,7 @@ class RestoreRecordCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:restore-record')
+            ->setName('amaiza:admin:repair:restore-record')
             ->addOption('module', null, InputOption::VALUE_REQUIRED, 'Module of the record to restore')
             ->addOption('record', null, InputOption::VALUE_REQUIRED, 'ID of the record to restore')
             ->setDescription('Restore a soft-deleted record (if present) and most of its relationships.');

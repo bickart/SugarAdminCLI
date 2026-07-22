@@ -8,12 +8,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Diffs each module's vardef-declared fields against its actual core-table
  * DB columns ($db->get_columns()) — drift at column granularity, pairing
- * with admin:repair:missing-tables (whole-table granularity). Not a stock
+ * with amaiza:admin:repair:missing-tables (whole-table granularity). Not a stock
  * Sugar report — no equivalent exists.
  *
  * Scoped to the core table only, not each module's _cstm table — custom
  * field/DB-column drift there is already covered by
- * admin:report:field-usage's own column enumeration. Confirmed via a real
+ * amaiza:admin:report:field-usage's own column enumeration. Confirmed via a real
  * bean's field_defs (not guessed from raw vardef file fragments, which are
  * only fragments merged at repair time): a custom field's compiled
  * field_defs entry carries either a 'custom_module' key or
@@ -27,7 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * have a real matching column in the core table.
  *
  * Modules whose core table doesn't exist at all are skipped — that's
- * admin:repair:missing-tables' job, not this one's.
+ * amaiza:admin:repair:missing-tables' job, not this one's.
  *
  * NOT YET LIVE-VERIFIED — see RELEASENOTES.md.
  */
@@ -35,7 +35,7 @@ class ReportSchemaDiffCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:schema-diff')
+            ->setName('amaiza:admin:report:schema-diff')
             ->addOption('module', null, InputOption::VALUE_REQUIRED, 'Only check this one module (default: every module)')
             ->setDescription("Diff each module's vardef-declared fields against its actual core-table DB columns.");
     }

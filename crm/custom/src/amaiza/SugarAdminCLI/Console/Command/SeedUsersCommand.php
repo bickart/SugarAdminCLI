@@ -21,7 +21,7 @@ class SeedUsersCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:seed-users')
+            ->setName('amaiza:admin:repair:seed-users')
             ->addOption('enable', null, InputOption::VALUE_NONE, 'Activate the demo seed users')
             ->addOption('disable', null, InputOption::VALUE_NONE, 'Deactivate the demo seed users')
             ->setDescription('Enable/Disable Seed Users — quickly enable or disable seed users populated during demo installation.');

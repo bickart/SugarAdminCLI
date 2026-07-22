@@ -21,7 +21,7 @@ final class RepairAndRebuildCommandTest extends TestCase {
         $application = new Application();
         $application->add(new RepairAndRebuildCommand());
 
-        $tester = new CommandTester($application->find('admin:repair:qrr'));
+        $tester = new CommandTester($application->find('amaiza:admin:repair:qrr'));
         $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
@@ -39,8 +39,8 @@ final class RepairAndRebuildCommandTest extends TestCase {
         $application->add(new RepairAndRebuildCommand());
 
         self::assertSame(
-            $application->find('admin:repair:qrr'),
-            $application->find('admin:qrr'),
+            $application->find('amaiza:admin:repair:qrr'),
+            $application->find('amaiza:admin:qrr'),
         );
     }
 }

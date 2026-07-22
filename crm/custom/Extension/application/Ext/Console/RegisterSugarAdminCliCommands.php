@@ -40,7 +40,7 @@ use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\RestoreRecordC
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\SeedUsersCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\UpgradeTeamsCommand;
 
-// Register all SugarAdminCLI admin:repair:* commands.
+// Register all SugarAdminCLI amaiza:admin:repair:* commands.
 CommandRegistry::getInstance()->addCommands([
     new RepairAndRebuildCommand(),
     new UpgradeTeamsCommand(),

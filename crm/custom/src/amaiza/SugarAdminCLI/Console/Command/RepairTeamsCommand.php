@@ -22,7 +22,7 @@ class RepairTeamsCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:teams')
+            ->setName('amaiza:admin:repair:teams')
             ->setDescription('Repair Teams — rebuilds private team memberships based on the user reporting hierarchy.');
     }
 

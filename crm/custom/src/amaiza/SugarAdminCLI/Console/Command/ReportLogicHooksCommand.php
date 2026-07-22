@@ -30,7 +30,7 @@ class ReportLogicHooksCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:logic-hooks')
+            ->setName('amaiza:admin:report:logic-hooks')
             ->addOption('module', null, InputOption::VALUE_REQUIRED, "Only check this one module's logichooks.ext.php (default: every custom module)")
             ->setDescription('Audit custom logic hooks for same-priority collisions and missing files/classes/methods.');
     }

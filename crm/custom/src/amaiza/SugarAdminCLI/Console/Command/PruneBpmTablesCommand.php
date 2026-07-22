@@ -57,7 +57,7 @@ class PruneBpmTablesCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:prune-bpm-tables')
+            ->setName('amaiza:admin:repair:prune-bpm-tables')
             ->addOption(
                 'before',
                 null,

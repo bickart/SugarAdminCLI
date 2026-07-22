@@ -5,7 +5,7 @@ class MaintenanceOffCommand extends AbstractMaintenanceModeCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:maintenance:off')
+            ->setName('amaiza:admin:maintenance:off')
             ->setDescription('Set Maintenance mode off — the system becomes accessible to all users again.');
     }
 

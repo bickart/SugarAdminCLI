@@ -37,7 +37,7 @@ class OrphansCleanupCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:orphans-cleanup')
+            ->setName('amaiza:admin:repair:orphans-cleanup')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Report counts without deleting anything, and skip the confirmation prompt')
             ->setDescription('Delete orphan rows from custom (_cstm), audit (_audit), and audit_events tables — rows with no matching core table record.');
         $this->addConfirmationOption();

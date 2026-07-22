@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Reports Customer Journeys ("Smart Guide" in the UI, dri_workflows table)
  * still marked in_progress well past a reasonable running time — likely
- * candidates for admin:report:blocked-record --cancel-journey. Verified
+ * candidates for amaiza:admin:report:blocked-record --cancel-journey. Verified
  * directly against modules/DRI_Workflows/vardefs.php and DRI_Workflow.php's
  * STATE_* constants: state='in_progress', archived is a real bool column,
  * date_started/parent_type/parent_id are all real stored columns. Confirmed
@@ -26,7 +26,7 @@ class ReportStaleJourneysCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:stale-journeys')
+            ->setName('amaiza:admin:report:stale-journeys')
             ->addOption('days', null, InputOption::VALUE_REQUIRED, 'Report journeys started more than this many days ago (default: 30)', '30')
             ->setDescription('Report Customer Journeys ("Smart Guide") still in_progress well past a reasonable running time.');
     }

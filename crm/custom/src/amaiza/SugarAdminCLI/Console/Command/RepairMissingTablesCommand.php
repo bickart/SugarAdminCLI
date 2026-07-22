@@ -8,10 +8,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Aligns the database schema to Sugar's file-system definitions by creating
  * any SQL table that's missing entirely — the scenario stock QRR
- * (admin:repair:qrr) doesn't reliably cover, since its schema-diffing logic
+ * (amaiza:admin:repair:qrr) doesn't reliably cover, since its schema-diffing logic
  * assumes a table already exists to diff against. Intended for recovering an
  * incomplete instance (e.g. restored from a partial backup missing whole
- * tables), not routine maintenance — for that, use admin:repair:qrr.
+ * tables), not routine maintenance — for that, use amaiza:admin:repair:qrr.
  *
  * Not a stock Administration > Repair action — no equivalent exists in Sugar
  * core. Behavior modeled on esimonetti/toothpaste's
@@ -37,7 +37,7 @@ class RepairMissingTablesCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:missing-tables')
+            ->setName('amaiza:admin:repair:missing-tables')
             ->setDescription('Repair missing SQL tables and align the database schema to Sugar\'s definitions.');
     }
 

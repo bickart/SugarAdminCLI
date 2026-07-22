@@ -12,10 +12,10 @@ one level more specific per-product.
 Fully implemented and live-verified (symlinked in, ran for real, confirmed
 side effects, then cleanly uninstalled) against a real Sugar instance:
 
-- `admin:repair:qrr` (alias `admin:qrr`)
-- `admin:repair:relationships`
-- `admin:repair:roles`
-- `admin:repair:sprites`
+- `amaiza:admin:repair:qrr` (alias `amaiza:admin:qrr`)
+- `amaiza:admin:repair:relationships`
+- `amaiza:admin:repair:roles`
+- `amaiza:admin:repair:sprites`
 
 The remaining 15 commands have their `$_REQUEST`/global pre-seed and target
 core file already filled in (based on reading the stock Sugar core files
@@ -23,58 +23,58 @@ directly), but have **not yet been run against a live Sugar instance** to
 confirm they perform the expected repair — treat as pending verification
 before relying on them:
 
-- `admin:repair:teams:upgrade`
-- `admin:repair:htaccess`
-- `admin:repair:config`
-- `admin:repair:sugarlogic`
-- `admin:repair:schedulers`
-- `admin:repair:workflow`
-- `admin:repair:js-languages`
-- `admin:repair:js-groupings`
-- `admin:repair:field-casing`
-- `admin:repair:teams`
-- `admin:repair:inbound-email`
-- `admin:repair:xss`
-- `admin:repair:activities`
-- `admin:repair:seed-users`
-- `admin:repair:cache:clear`
+- `amaiza:admin:repair:teams:upgrade`
+- `amaiza:admin:repair:htaccess`
+- `amaiza:admin:repair:config`
+- `amaiza:admin:repair:sugarlogic`
+- `amaiza:admin:repair:schedulers`
+- `amaiza:admin:repair:workflow`
+- `amaiza:admin:repair:js-languages`
+- `amaiza:admin:repair:js-groupings`
+- `amaiza:admin:repair:field-casing`
+- `amaiza:admin:repair:teams`
+- `amaiza:admin:repair:inbound-email`
+- `amaiza:admin:repair:xss`
+- `amaiza:admin:repair:activities`
+- `amaiza:admin:repair:seed-users`
+- `amaiza:admin:repair:cache:clear`
 
 Also added: 6 commands with no stock Sugar Repair-page equivalent, modeled
 on esimonetti/toothpaste (Apache-2.0) but reimplemented directly against
-Sugar's own APIs. `admin:maintenance:on`/`admin:maintenance:off` have real
+Sugar's own APIs. `amaiza:admin:maintenance:on`/`amaiza:admin:maintenance:off` have real
 unit test coverage (`Configurator` is fully stubbed); the other 4 are
-**not yet live-verified**, and `admin:repair:prune-database` and
-`admin:repair:missing-tables` are the highest-risk commands in this package
+**not yet live-verified**, and `amaiza:admin:repair:prune-database` and
+`amaiza:admin:repair:missing-tables` are the highest-risk commands in this package
 (the former performs real irreversible data deletion; the latter
 require()s every metadata/vardefs file directly and relies on an internal
 implementation detail of `PruneDatabaseService` for its `--table` option) —
 test both against a disposable, non-production instance before relying on
 them:
 
-- `admin:repair:restore-record`
-- `admin:repair:orphans-cleanup`
-- `admin:repair:prune-database`
-- `admin:repair:missing-tables`
-- `admin:maintenance:on`
-- `admin:maintenance:off`
+- `amaiza:admin:repair:restore-record`
+- `amaiza:admin:repair:orphans-cleanup`
+- `amaiza:admin:repair:prune-database`
+- `amaiza:admin:repair:missing-tables`
+- `amaiza:admin:maintenance:on`
+- `amaiza:admin:maintenance:off`
 
-`admin:repair:orphans-cleanup` and `admin:repair:prune-database` now
+`amaiza:admin:repair:orphans-cleanup` and `amaiza:admin:repair:prune-database` now
 require confirmation before running (`--yes`/`-y` to skip non-interactively,
 otherwise an interactive `[y/N]` prompt) since both perform permanent
 deletion with no backup — covered by dedicated unit tests
 (`ConfirmDestructiveActionTest`) against the shared
 `AbstractRepairCommand::confirmDestructiveAction()` mechanism.
 
-Also added `admin:repair:orphaned-parent-cleanup`: generalizes a
+Also added `amaiza:admin:repair:orphaned-parent-cleanup`: generalizes a
 customer-specific command (`dynatron:clean:tasks`, Tasks-only) into a
 configurable `--modules` list, defaulting to the 5 stock modules verified
 (directly against Sugar 26's vardefs) to actually have the
 `parent_type`/`parent_id` flex-relate field pair — Tasks, Calls, Meetings,
 Notes, Emails. Uses `mark_deleted()` (soft delete, reversible via
-`admin:repair:restore-record`), so no confirmation gate needed. **Not yet
+`amaiza:admin:repair:restore-record`), so no confirmation gate needed. **Not yet
 live-verified.**
 
-`admin:repair:orphans-cleanup` now also cleans up per-module `_audit`
+`amaiza:admin:repair:orphans-cleanup` now also cleans up per-module `_audit`
 tables (`parent_id -> core.id`, existence checked via `$db->tableExists()`
 the same way Sugar's own core code guards these tables) and the shared
 `audit_events` table (`parent_id -> core.id`, additionally scoped by
@@ -85,15 +85,15 @@ handled `_cstm` tables. Both field mappings verified directly against
 All three commands that delete data now support `--dry-run` (reports
 per-table/module counts and a total without deleting anything, and skips
 the confirmation prompt entirely since nothing destructive happens):
-`admin:repair:orphans-cleanup`, `admin:repair:prune-database`, and
-`admin:repair:orphaned-parent-cleanup`. For prune-database, dry-run
+`amaiza:admin:repair:orphans-cleanup`, `amaiza:admin:repair:prune-database`, and
+`amaiza:admin:repair:orphaned-parent-cleanup`. For prune-database, dry-run
 reimplements just the row-selection criteria (`deleted=1 AND
 date_modified < threshold`, on tables with both columns) as read-only
 COUNT(*) queries, since the underlying `PruneDatabaseService` has no
 preview mode of its own and dry-run never touches it or creates a
 SchedulersJob.
 
-`admin:repair:orphans-cleanup` now always reports scan coverage (how many
+`amaiza:admin:repair:orphans-cleanup` now always reports scan coverage (how many
 `_cstm`/`_audit` tables and `audit_events` module_names were actually
 checked) before the total, so a "0 found" result is distinguishable from a
 silent no-op scan.
@@ -135,7 +135,7 @@ surfaced a 4th:
   command now reports which modules it's actually processing instead of
   always listing the full default set regardless of `--modules`.
 
-Added `admin:repair:export-records --module X --ids A,B,C [--output path]`:
+Added `amaiza:admin:repair:export-records --module X --ids A,B,C [--output path]`:
 a standalone safety-net command that exports full record data (core table
 row, plus the `_cstm` row if the module has custom fields) for a given list
 of ids to a JSON Lines file — a timestamped file under
@@ -151,17 +151,17 @@ default) skips backing up entirely — unchanged, already-shipped behavior.
 `--backup-dir` is ignored during `--dry-run` (nothing is deleted, so there's
 nothing to back up).
 
-- `admin:repair:orphans-cleanup` — backs up each batch's full rows
+- `amaiza:admin:repair:orphans-cleanup` — backs up each batch's full rows
   immediately before its own `DELETE ... WHERE id IN (...)` statement.
-- `admin:repair:prune-database` — backs up a one-time snapshot of every row
+- `amaiza:admin:repair:prune-database` — backs up a one-time snapshot of every row
   matching the same `deleted=1 AND date_modified < threshold` criteria
   `--dry-run` already reports, before invoking the real `pruneDatabase()`
   job (its own internal batching is treated as a black box, same as before).
-- `admin:repair:orphaned-parent-cleanup` — backs up each record's core row
+- `amaiza:admin:repair:orphaned-parent-cleanup` — backs up each record's core row
   (plus its `_cstm` row, if any) immediately before that record's own
   `mark_deleted()` call.
 
-`admin:repair:orphaned-parent-cleanup` fixes found live against keecor's real
+`amaiza:admin:repair:orphaned-parent-cleanup` fixes found live against keecor's real
 `Calls` data:
 
 - A distinct `parent_type` value that doesn't resolve to any real module at
@@ -194,7 +194,7 @@ blocking error text originates), `modules/DRI_Workflows/vardefs.php`/
 `DRI_Workflow.php`'s `STATE_*` constants, and
 `src/CustomerJourney/Bean/Journey/Canceller.php` (the real "Terminate" logic):
 
-- `admin:report:blocked-record --module X --record Y [--unblock] [--cancel-journey]`
+- `amaiza:admin:report:blocked-record --module X --record Y [--unblock] [--cancel-journey]`
   — reports whether the record is linked to a journey/stage (only
   Tasks/Calls/Meetings carry the `dri_workflow_id`/`dri_subworkflow_id` field
   pair) and their current `state`, plus whether `ActivityHelper::isBlocked()`/
@@ -203,14 +203,14 @@ blocking error text originates), `modules/DRI_Workflows/vardefs.php`/
   persisted) and saves, bypassing the block for that one save only.
   `--cancel-journey` calls the real `Canceller::cancel()` (same class the
   UI's Terminate action uses). Both require confirmation.
-- `admin:report:stale-journeys [--days 30]` — lists `dri_workflows` rows
+- `amaiza:admin:report:stale-journeys [--days 30]` — lists `dri_workflows` rows
   still `state = 'in_progress'`, not archived, started more than the
   threshold ago.
 
 Both **not yet live-verified.**
 
-Added `admin:repair:prune-bpm-tables --before=YYYY-MM-DD [--dry-run]` and
-`admin:repair:prune-bpm-tables --drop-renamed-tables [--dry-run]`, directly
+Added `amaiza:admin:repair:prune-bpm-tables --before=YYYY-MM-DD [--dry-run]` and
+`amaiza:admin:repair:prune-bpm-tables --drop-renamed-tables [--dry-run]`, directly
 implementing Sugar Support's own recommended SugarBPM (`pmse_*`) table
 cleanup procedure (provided to this instance's admin on 2025-07-09): a
 `CREATE => RENAME => INSERT` dance per table (`pmse_bpm_flow`,
@@ -235,7 +235,7 @@ command in the package: it runs raw DDL (`CREATE TABLE`, `RENAME TABLE`,
 layer, and a real database backup is strongly recommended regardless of
 `--dry-run` testing first.
 
-Added `admin:report:stale-bpm-cases [--days 30] [--case-id ID] [--terminate]`
+Added `amaiza:admin:report:stale-bpm-cases [--days 30] [--case-id ID] [--terminate]`
 for real SugarBPM (`pmse_*`) — the counterpart to the Customer Journey
 diagnostics above. Verified directly against
 `modules/pmse_Inbox/clients/base/api/PMSEEngineApi.php::cancelCase()` and
@@ -251,7 +251,7 @@ vocabulary entirely and isn't authoritative for the case as a whole.
 `PMSECaseFlowHandler::terminateCase()`, gated behind confirmation.
 **Not yet live-verified.**
 
-Added `admin:report:duplicates --module X [--limit 500] [--offset 0]` —
+Added `amaiza:admin:report:duplicates --module X [--limit 500] [--offset 0]` —
 finds (does not merge) likely duplicate records within a module, by calling
 Sugar's own per-record `SugarBean::findDuplicates()` (`data/SugarBean.php:8339`)
 for every record in a bounded batch, since there's no bulk/module-wide "scan
@@ -264,7 +264,7 @@ relationship-reassignment implementation would be unreviewed, real, risky
 logic, and is out of scope here, tracked as separate future work if ever
 pursued. **Not yet live-verified.**
 
-Added `admin:report:logic-hooks [--module X]` — audits every
+Added `amaiza:admin:report:logic-hooks [--module X]` — audits every
 `custom/modules/*/Ext/LogicHooks/logichooks.ext.php` (the Extension Model
 this repo's own CLAUDE.md documents) for two problems CLAUDE.md already
 tells contributors to check by hand: two hooks on the same module + event
@@ -279,8 +279,8 @@ priority collision and a missing-file hook, asserting both are flagged.
 (only against the test fixture), though it's read-only with no destructive
 path at all.
 
-Added `admin:report:field-usage --module X [--threshold 1]` and
-`admin:report:dropdown-usage --module X` (Forge-derived ideas, adapted to
+Added `amaiza:admin:report:field-usage --module X [--threshold 1]` and
+`amaiza:admin:report:dropdown-usage --module X` (Forge-derived ideas, adapted to
 this repo's own bean/DBAL APIs). Both **live-verified against keecor's real
 28,050-row Accounts table** — field-usage correctly reported 230 custom
 columns with real population percentages (flagging 54 under 1% as removal
@@ -307,8 +307,8 @@ across 55 enum fields (e.g. departed employees still listed in
 Both **not yet live-verified against modules other than Accounts**, though
 the underlying logic is module-agnostic.
 
-Added `admin:report:schema-diff [--module X]`, `admin:report:table-sizes
-[--top 20]`, and `admin:report:stuck-jobs [--minutes 60] [--failure-hours 24]`
+Added `amaiza:admin:report:schema-diff [--module X]`, `amaiza:admin:report:table-sizes
+[--top 20]`, and `amaiza:admin:report:stuck-jobs [--minutes 60] [--failure-hours 24]`
 (Forge-derived ideas for the first, direct DB/job_queue introspection for
 the other two). All three **live-verified against keecor's real data** —
 `table-sizes` correctly ranked real tables (`tasks` at 2.58 GB /

@@ -50,7 +50,7 @@ class PruneDatabaseCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:prune-database')
+            ->setName('amaiza:admin:repair:prune-database')
             ->addOption(
                 'table',
                 null,

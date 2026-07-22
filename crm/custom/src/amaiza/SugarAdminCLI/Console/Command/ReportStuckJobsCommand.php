@@ -27,7 +27,7 @@ class ReportStuckJobsCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:stuck-jobs')
+            ->setName('amaiza:admin:report:stuck-jobs')
             ->addOption('minutes', null, InputOption::VALUE_REQUIRED, 'Flag "running" jobs whose date_modified is older than this many minutes (default: 60)', '60')
             ->addOption('failure-hours', null, InputOption::VALUE_REQUIRED, 'Also report jobs that resolved as failure within this many hours (default: 24)', '24')
             ->setDescription('Report stuck "running" scheduled jobs and recent job failures (job_queue table).');

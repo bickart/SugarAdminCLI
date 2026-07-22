@@ -22,7 +22,7 @@ class RebuildConfigCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:config')
+            ->setName('amaiza:admin:repair:config')
             ->setDescription('Rebuild Config File — rebuilds config.php, updating version and adding defaults when not explicitly declared.');
     }
 

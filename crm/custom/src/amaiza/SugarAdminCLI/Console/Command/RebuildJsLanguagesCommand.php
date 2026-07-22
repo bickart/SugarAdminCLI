@@ -16,7 +16,7 @@ class RebuildJsLanguagesCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:js-languages')
+            ->setName('amaiza:admin:repair:js-languages')
             ->setDescription('Rebuild Javascript Languages — rebuilds javascript versions of language files.');
     }
 

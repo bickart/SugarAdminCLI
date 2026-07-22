@@ -20,7 +20,7 @@ final class RebuildSpritesCommandTest extends TestCase {
         $application = new Application();
         $application->add(new RebuildSpritesCommand());
 
-        $tester = new CommandTester($application->find('admin:repair:sprites'));
+        $tester = new CommandTester($application->find('amaiza:admin:repair:sprites'));
         $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);

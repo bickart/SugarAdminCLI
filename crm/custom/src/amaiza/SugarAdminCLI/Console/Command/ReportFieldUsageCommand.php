@@ -29,7 +29,7 @@ class ReportFieldUsageCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:field-usage')
+            ->setName('amaiza:admin:report:field-usage')
             ->addOption('module', null, InputOption::VALUE_REQUIRED, 'Module to check custom field population for')
             ->addOption('threshold', null, InputOption::VALUE_REQUIRED, 'Flag fields populated in fewer than this percent of records as removal candidates (default: 1)', '1')
             ->setDescription('Report what percentage of records have each custom field populated, flagging underused fields as removal candidates.');

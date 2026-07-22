@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Diagnoses (and optionally terminates) stuck real SugarBPM cases — a
  * separate system from the Customer Journey engine ("Smart Guide"), which
- * has its own admin:report:blocked-record/stale-journeys commands. Verified
+ * has its own amaiza:admin:report:blocked-record/stale-journeys commands. Verified
  * directly against modules/pmse_Inbox/clients/base/api/PMSEEngineApi.php
  * (cancelCase()) and modules/pmse_Inbox/engine/PMSEHandlers/PMSECaseFlowHandler.php
  * (terminateCase()) — the exact classes/methods the stock "Terminate" admin
@@ -35,7 +35,7 @@ class ReportStaleBpmCasesCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:stale-bpm-cases')
+            ->setName('amaiza:admin:report:stale-bpm-cases')
             ->addOption('days', null, InputOption::VALUE_REQUIRED, 'Report cases started more than this many days ago (default: 30)', '30')
             ->addOption('case-id', null, InputOption::VALUE_REQUIRED, 'Report (or terminate) only this one pmse_Inbox cas_id, regardless of age')
             ->addOption('terminate', null, InputOption::VALUE_NONE, 'Terminate matched cases (mirrors the stock "Terminate" admin action, PMSECaseFlowHandler::terminateCase())')

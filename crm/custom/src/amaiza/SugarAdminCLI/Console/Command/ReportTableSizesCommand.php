@@ -8,8 +8,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Reports the largest tables in the database by total size (data + index),
  * via information_schema.TABLES — directly useful for deciding what to
- * target with admin:repair:prune-database --table or
- * admin:repair:prune-bpm-tables. Not a stock Sugar report — no equivalent
+ * target with amaiza:admin:repair:prune-database --table or
+ * amaiza:admin:repair:prune-bpm-tables. Not a stock Sugar report — no equivalent
  * exists. Read-only, no destructive path at all.
  *
  * TABLE_ROWS from information_schema is InnoDB's own internal estimate, not
@@ -24,7 +24,7 @@ class ReportTableSizesCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:table-sizes')
+            ->setName('amaiza:admin:report:table-sizes')
             ->addOption('top', null, InputOption::VALUE_REQUIRED, 'Number of largest tables to report (default: 20)', '20')
             ->setDescription('Report the largest tables by total size (data + index).');
     }

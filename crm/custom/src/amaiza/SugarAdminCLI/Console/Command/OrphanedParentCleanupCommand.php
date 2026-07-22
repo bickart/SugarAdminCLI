@@ -26,7 +26,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * call per row) — the original per-row version doesn't scale (e.g. 2M Tasks
  * would mean 2M individual bean-retrieval queries).
  *
- * Uses mark_deleted() — a soft delete, reversible via admin:repair:restore-record
+ * Uses mark_deleted() — a soft delete, reversible via amaiza:admin:repair:restore-record
  * — which is a real bean save, not a raw SQL UPDATE: it fires
  * before_delete/after_delete logic hooks and cleans up team_sets_modules, so
  * each candidate is retrieved as a real bean first (never delete a blank,
@@ -75,7 +75,7 @@ class OrphanedParentCleanupCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:orphaned-parent-cleanup')
+            ->setName('amaiza:admin:repair:orphaned-parent-cleanup')
             ->addOption(
                 'modules',
                 null,
@@ -104,7 +104,7 @@ class OrphanedParentCleanupCommand extends AbstractRepairCommand {
             $this->confirmDestructiveAction(
                 $input,
                 $output,
-                'This soft-deletes orphaned records (reversible via admin:repair:restore-record, but a real mutation to your data).',
+                'This soft-deletes orphaned records (reversible via amaiza:admin:repair:restore-record, but a real mutation to your data).',
             );
         }
 

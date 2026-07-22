@@ -21,7 +21,7 @@ final class RepairRolesCommandTest extends TestCase {
         $application = new Application();
         $application->add(new RepairRolesCommand());
 
-        $tester = new CommandTester($application->find('admin:repair:roles'));
+        $tester = new CommandTester($application->find('amaiza:admin:repair:roles'));
         $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);

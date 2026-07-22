@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Shared shape for every admin:repair:* command: buffer whatever HTML the
+ * Shared shape for every amaiza:admin:repair:* command: buffer whatever HTML the
  * underlying stock Sugar file echoes (it was written for a browser, not a
  * console), report success/failure via SymfonyStyle, and translate any
  * exception into a non-zero exit code instead of a raw stack trace.

@@ -19,7 +19,7 @@ class RebuildSchedulersCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:schedulers')
+            ->setName('amaiza:admin:repair:schedulers')
             ->setDescription('Rebuild Schedulers — rebuilds out-of-the-box Scheduler Jobs.');
     }
 

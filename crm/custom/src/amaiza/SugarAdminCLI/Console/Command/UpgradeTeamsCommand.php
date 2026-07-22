@@ -23,7 +23,7 @@ class UpgradeTeamsCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:teams:upgrade')
+            ->setName('amaiza:admin:repair:teams:upgrade')
             ->setDescription('Upgrade Teams — creates teams for users.');
     }
 

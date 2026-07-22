@@ -22,7 +22,7 @@ class RebuildJsGroupingsCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:js-groupings')
+            ->setName('amaiza:admin:repair:js-groupings')
             ->setDescription('Rebuild JS Grouping Files — re-concatenates and overwrites existing group files with the latest versions.');
     }
 

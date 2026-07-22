@@ -16,7 +16,7 @@ class RebuildRelationshipsCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:relationships')
+            ->setName('amaiza:admin:repair:relationships')
             ->setDescription('Rebuild Relationships — rebuilds relationship metadata and drops the cache file.');
     }
 

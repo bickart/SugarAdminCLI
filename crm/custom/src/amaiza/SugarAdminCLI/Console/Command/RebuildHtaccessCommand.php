@@ -17,7 +17,7 @@ class RebuildHtaccessCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:htaccess')
+            ->setName('amaiza:admin:repair:htaccess')
             ->setDescription('Rebuild .htaccess File — rebuilds .htaccess to limit access to certain files directly.');
     }
 

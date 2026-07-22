@@ -20,7 +20,7 @@ class RepairFieldCasingCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:field-casing')
+            ->setName('amaiza:admin:repair:field-casing')
             ->setDescription('Repair Non-Lowercase Fields — repairs mixed-case custom table(s) and metadata file(s).');
     }
 

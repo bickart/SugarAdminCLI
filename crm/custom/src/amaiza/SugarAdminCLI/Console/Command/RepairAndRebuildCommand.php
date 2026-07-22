@@ -19,8 +19,8 @@ class RepairAndRebuildCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:qrr')
-            ->setAliases(['admin:qrr'])
+            ->setName('amaiza:admin:repair:qrr')
+            ->setAliases(['amaiza:admin:qrr'])
             ->setDescription('Quick Repair and Rebuild — repairs/rebuilds DB, Extensions, Vardefs, Dashlets, etc.');
     }
 

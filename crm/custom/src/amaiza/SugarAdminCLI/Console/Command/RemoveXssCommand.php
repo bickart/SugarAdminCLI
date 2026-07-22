@@ -28,7 +28,7 @@ class RemoveXssCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:xss')
+            ->setName('amaiza:admin:repair:xss')
             ->setDescription('Remove XSS — removes XSS vulnerabilities from the database.');
     }
 

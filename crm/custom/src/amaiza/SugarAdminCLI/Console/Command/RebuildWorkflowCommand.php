@@ -18,7 +18,7 @@ class RebuildWorkflowCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:workflow')
+            ->setName('amaiza:admin:repair:workflow')
             ->setDescription('Rebuild WorkFlow — rebuilds the workflow cache and compiles plugins.');
     }
 

@@ -22,7 +22,7 @@ final class MaintenanceModeCommandTest extends TestCase {
         $application = new Application();
         $application->add(new MaintenanceOnCommand());
 
-        $exitCode = new CommandTester($application->find('admin:maintenance:on'))->execute([]);
+        $exitCode = new CommandTester($application->find('amaiza:admin:maintenance:on'))->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertTrue($GLOBALS['sugar_config']['maintenanceMode']);
@@ -36,7 +36,7 @@ final class MaintenanceModeCommandTest extends TestCase {
         $application = new Application();
         $application->add(new MaintenanceOnCommand());
 
-        $exitCode = new CommandTester($application->find('admin:maintenance:on'))->execute([]);
+        $exitCode = new CommandTester($application->find('amaiza:admin:maintenance:on'))->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertSame(0, \Configurator::$handleOverrideCalls);
@@ -49,7 +49,7 @@ final class MaintenanceModeCommandTest extends TestCase {
         $application = new Application();
         $application->add(new MaintenanceOffCommand());
 
-        $exitCode = new CommandTester($application->find('admin:maintenance:off'))->execute([]);
+        $exitCode = new CommandTester($application->find('amaiza:admin:maintenance:off'))->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertFalse($GLOBALS['sugar_config']['maintenanceMode']);

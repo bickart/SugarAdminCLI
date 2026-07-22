@@ -20,7 +20,7 @@ final class ReportLogicHooksCommandTest extends TestCase {
         $application = new Application();
         $application->add(new ReportLogicHooksCommand());
 
-        return new CommandTester($application->find('admin:report:logic-hooks'));
+        return new CommandTester($application->find('amaiza:admin:report:logic-hooks'));
     }
 
     public function testFlagsPriorityCollision(): void

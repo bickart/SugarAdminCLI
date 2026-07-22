@@ -19,7 +19,7 @@ class RepairInboundEmailCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:inbound-email')
+            ->setName('amaiza:admin:repair:inbound-email')
             ->setDescription('Repair Inbound Email Accounts — repairs accounts and encrypts account passwords.');
     }
 

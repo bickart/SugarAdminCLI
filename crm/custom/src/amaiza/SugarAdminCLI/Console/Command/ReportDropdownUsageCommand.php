@@ -35,7 +35,7 @@ class ReportDropdownUsageCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:dropdown-usage')
+            ->setName('amaiza:admin:report:dropdown-usage')
             ->addOption('module', null, InputOption::VALUE_REQUIRED, 'Module to check dropdown field usage for')
             ->setDescription('Report configured dropdown options that no record currently uses.');
     }

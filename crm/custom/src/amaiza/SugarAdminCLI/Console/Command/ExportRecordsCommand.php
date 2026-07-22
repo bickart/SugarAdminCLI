@@ -24,7 +24,7 @@ class ExportRecordsCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:repair:export-records')
+            ->setName('amaiza:admin:repair:export-records')
             ->addOption('module', null, InputOption::VALUE_REQUIRED, 'Module of the records to export')
             ->addOption('ids', null, InputOption::VALUE_REQUIRED, 'Comma-separated record IDs to export')
             ->addOption('output', null, InputOption::VALUE_REQUIRED, sprintf(

@@ -38,7 +38,7 @@ class ReportBlockedRecordCommand extends AbstractRepairCommand {
     protected function configure(): void
     {
         $this
-            ->setName('admin:report:blocked-record')
+            ->setName('amaiza:admin:report:blocked-record')
             ->addOption('module', null, InputOption::VALUE_REQUIRED, 'Module of the record to check')
             ->addOption('record', null, InputOption::VALUE_REQUIRED, 'ID of the record to check')
             ->addOption('unblock', null, InputOption::VALUE_NONE, 'Set ignore_blocked_by and save, bypassing the block for this one save')
