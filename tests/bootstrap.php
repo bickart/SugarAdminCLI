@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/Support/SugarStubs.php';
+require_once __DIR__.'/Support/BeanStubs.php';
 
 // Command classes require Sugar core files by relative path (e.g.
 // 'modules/Administration/QuickRepairAndRebuild.php'), same as they would

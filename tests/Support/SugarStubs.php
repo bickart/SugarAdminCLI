@@ -138,9 +138,23 @@ namespace {
             self::$rebuildCacheCalls[] = $modules;
         }
 
+        /** @var array<string, true> relationship names relationshipExists() reports as cached */
+        public static array $relationships = [];
+
+        public static function getInstance(): self
+        {
+            return new self();
+        }
+
+        public function relationshipExists(string $relationshipName): bool
+        {
+            return isset(self::$relationships[$relationshipName]);
+        }
+
         public static function reset(): void
         {
             self::$rebuildCacheCalls = [];
+            self::$relationships = [];
         }
     }
 

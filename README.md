@@ -104,6 +104,7 @@ Read-only by default; a few support an explicit, confirmation-gated mutating fla
 | `amaiza:admin:report:schema-diff --module X` | Vardef-declared fields vs. actual DB columns, at column granularity (pairs with `amaiza:admin:repair:missing-tables`'s whole-table granularity) |
 | `amaiza:admin:report:table-sizes --top 20` | Largest tables by size — useful for choosing `amaiza:admin:repair:prune-database --table` targets |
 | `amaiza:admin:report:stuck-jobs --minutes 60` | Scheduled jobs stuck `running`, plus recent failures (`job_queue` table) |
+| `amaiza:admin:report:relationships --module X` | Link fields whose relationship is missing from the relationship cache, flagging modules with a parent field (their saves fail with a `TypeError`) — run after an upgrade and again after `amaiza:admin:repair:relationships` |
 
 See RELEASENOTES.md for what's implemented vs. pending live verification.
 

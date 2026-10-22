@@ -42,14 +42,8 @@ class ReportSchemaDiffCommand extends AbstractRepairCommand {
 
     protected function repair(InputInterface $input, OutputInterface $output): void
     {
-        $moduleFilter = (string) $input->getOption('module');
-
-        global $beanList, $app_list_strings;
+        $modules = $this->resolveModules((string) $input->getOption('module'));
         $db = \DBManagerFactory::getInstance();
-
-        $modules = '' !== $moduleFilter
-            ? [$moduleFilter]
-            : array_keys(array_merge($beanList, $app_list_strings['moduleList'] ?? []));
 
         $checked = 0;
         $totalProblems = 0;

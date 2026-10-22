@@ -15,8 +15,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * exception into a non-zero exit code instead of a raw stack trace.
  */
 abstract class AbstractRepairCommand extends Command implements InstanceModeInterface {
+    /**
+     * Set via failAfterOutput() by a repair()/report that completed but found
+     * problems, so the run still prints everything it found and then exits
+     * non-zero for scripts/CI, instead of aborting part way like an exception.
+     */
+    private ?string $failure = null;
+
     final protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->failure = null;
         $io = new SymfonyStyle($input, $output);
         $io->title((string) $this->getDescription());
 
@@ -37,6 +45,12 @@ abstract class AbstractRepairCommand extends Command implements InstanceModeInte
             $io->text($buffered);
         }
 
+        if (null !== $this->failure) {
+            $io->error($this->failure);
+
+            return Command::FAILURE;
+        }
+
         $io->success('Complete.');
 
         return Command::SUCCESS;
@@ -49,6 +63,39 @@ abstract class AbstractRepairCommand extends Command implements InstanceModeInte
      * exposes) directly — never reimplement Sugar's own repair logic.
      */
     abstract protected function repair(InputInterface $input, OutputInterface $output): void;
+
+    /**
+     * Ends the run with a non-zero exit code and this message once repair()
+     * returns, keeping all of its output. For a report whose findings mean
+     * "not healthy" to a deploy pipeline or CI job.
+     */
+    protected function failAfterOutput(string $message): void
+    {
+        $this->failure = $message;
+    }
+
+    /**
+     * The modules a per-module command should walk: just --module when given
+     * (rejected with "Unknown module" when it doesn't resolve to a bean, so a
+     * typo can't pass for a clean run), otherwise every module in $beanList
+     * and the moduleList dropdown.
+     *
+     * @return list<string>
+     */
+    protected function resolveModules(string $moduleFilter): array
+    {
+        if ('' !== $moduleFilter) {
+            if (!\BeanFactory::newBean($moduleFilter) instanceof \SugarBean) {
+                throw new \RuntimeException(sprintf('Unknown module "%s".', $moduleFilter));
+            }
+
+            return [$moduleFilter];
+        }
+
+        global $beanList, $app_list_strings;
+
+        return array_keys(array_merge($beanList, $app_list_strings['moduleList'] ?? []));
+    }
 
     /**
      * Registers the --yes/-y flag a destructive command needs alongside

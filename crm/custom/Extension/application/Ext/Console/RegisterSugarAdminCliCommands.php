@@ -31,6 +31,7 @@ use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportDropdown
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportDuplicatesCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportFieldUsageCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportLogicHooksCommand;
+use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportRelationshipsCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportSchemaDiffCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportStaleBpmCasesCommand;
 use Sugarcrm\Sugarcrm\custom\amaiza\SugarAdminCLI\Console\Command\ReportStaleJourneysCommand;
@@ -80,4 +81,5 @@ CommandRegistry::getInstance()->addCommands([
     new ReportSchemaDiffCommand(),
     new ReportTableSizesCommand(),
     new ReportStuckJobsCommand(),
+    new ReportRelationshipsCommand(),
 ]);

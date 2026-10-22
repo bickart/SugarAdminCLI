@@ -337,3 +337,45 @@ live-testing fix (below).
 - `table-sizes` reports `TABLE_ROWS` from `information_schema` as an
   approximation (InnoDB's own internal estimate, not an exact count),
   labeled as such rather than presented as precise.
+
+Added `amaiza:admin:report:relationships [--module X]`: lists link fields
+whose relationship is missing from the relationship cache. Prompted by a
+real Sugar 26.1 upgrade where 31 of `FBSG_AdvancedTrackers`' dynamically
+generated links had no cached relationship: `SugarBean::save()` passes
+`SugarRelationshipFactory::getRelationship()`'s `false` straight into the
+`SugarRelationship`-typed `checkParentRelationship()` for modules with a
+`parent` field, so every tracker save failed with a `TypeError` until the
+relationship cache was rebuilt. Each finding says whether the module has a
+`parent` field (saves fail) or not (the link fails only when used).
+**Live-verified against keecor's real data** (loaded into a bootstrapped
+Sugar directly rather than installed): 3,648 links across 271 modules
+checked in under a second, and one real finding with no false positives —
+`fbsg_QB_Product_Sales_History.account_link` points at a relationship that
+is commented out of its metadata file, so no rebuild can fix it. An
+injected stale link on `FBSG_AdvancedTrackers` was flagged as breaking
+saves.
+
+- Exits non-zero when any link is missing (via a new
+  `failAfterOutput()` on `AbstractRepairCommand`, which keeps the report's
+  output and then fails), so a deploy pipeline can gate on it.
+- `--module` now goes through a new shared `resolveModules()` helper that
+  rejects an unknown module instead of reporting a typo as a clean run;
+  `schema-diff` uses it too, so it now also fails on an unknown module.
+- The "saves fail" label mirrors Sugar's own guard: only `parent` fields
+  with both `type_name` and `id_name` count. Modules sharing a bean
+  `object_name` are checked once, and a module whose bean throws is listed
+  as skipped instead of aborting the run.
+- Getting `SugarRelationshipFactory` builds and writes the cache file when
+  it's missing, so a cache built during the run is called out in a note.
+- Live testing found beans whose `field_defs` is `null` (no vardefs at
+  all); those are now treated as having no fields instead of failing the
+  run.
+- Live testing also showed why this report matters: on keecor, a
+  command-line `php bin/sugarcrm admin:qrr` rebuilt the relationship cache
+  without 28 of the tracker relationships whose links the vardef cache
+  still had (28 findings flagged "saves fail"), exactly the QA breakage.
+  Restoring the previous cache file brought it back to the one dead link.
+- `BeanFactory`/`SugarBean` test stubs live in `tests/Support/BeanStubs.php`,
+  not `SugarStubs.php`: the latter is also phpstan's bootstrap, and partial
+  stubs of those two classes there turned phpstan's ignored "class not
+  found" into 92 "method not found" errors elsewhere in the package.
